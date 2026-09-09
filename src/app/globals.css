@@ -1,0 +1,96 @@
+:root {
+  --ink-900: #111110;
+  --ink-800: #26241f;
+  --ink-700: #3c3a34;
+  --ink-600: #56534b;
+  --ink-500: #726e63;
+  --ink-400: #918c7f;
+  --ink-300: #b3ad9e;
+  --ink-200: #ded8c9;
+  --ink-100: #eeeae0;
+
+  --paper-50: #f7f4ee;
+  --paper-0: #ffffff;
+
+  --blue-700: #163a86;
+  --blue-600: #2049b4;
+  --blue-500: #3563d6;
+  --blue-100: #cddaf6;
+  --blue-50: #eef3fe;
+
+  --ember-700: #b85a1d;
+  --ember-600: #d97528;
+  --ember-500: #ea8a3c;
+  --ember-300: #f3c08a;
+  --ember-100: #fae7d2;
+
+  --success-100: #dbf3e3;
+  --success-600: #1f8a4c;
+  --warning-100: #fbeacb;
+  --warning-600: #a86a05;
+  --danger-600: #c93a3a;
+
+  --radius-pill: 999px;
+  --radius-lg: 16px;
+
+  --shadow-sm: 0 1px 2px rgba(38, 32, 20, 0.06), 0 1px 1px rgba(38, 32, 20, 0.04);
+  --shadow-md: 0 10px 30px rgba(38, 32, 20, 0.1), 0 2px 8px rgba(38, 32, 20, 0.06);
+  --shadow-focus: 0 0 0 3px var(--blue-100);
+
+  color-scheme: light;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  padding: 0;
+  margin: 0;
+}
+
+body {
+  background: var(--paper-50);
+  color: var(--ink-900);
+  font-family: var(--font-archivo), -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1,
+h2,
+h3,
+p {
+  margin: 0;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+}
+
+input,
+textarea,
+button {
+  font-family: inherit;
+}
+
+a {
+  color: inherit;
+}
+
+.ocmn-accent {
+  font-family: var(--font-playfair), serif;
+  font-style: italic;
+}
+
+@keyframes ocmnFadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

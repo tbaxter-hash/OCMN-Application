@@ -1,0 +1,175 @@
+.field {
+  animation: ocmnFadeUp 260ms ease-out;
+}
+
+.label {
+  display: block;
+  font-size: 16px;
+  font-weight: 800;
+  color: var(--ink-900);
+  margin-bottom: 8px;
+}
+
+.asterisk {
+  color: var(--blue-600);
+  margin-left: 3px;
+}
+
+.hint {
+  font-size: 13.5px;
+  color: var(--ink-500);
+  max-width: 40em;
+  margin: 4px 0 10px;
+}
+
+.error {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--danger-600);
+  margin-top: 6px;
+}
+
+.input,
+.textarea {
+  width: 100%;
+  max-width: 30em;
+  padding: 13px 15px;
+  font-size: 15.5px;
+  color: var(--ink-900);
+  background: var(--paper-0);
+  border: 1.5px solid var(--ink-200);
+  border-radius: 12px;
+  transition: border-color 140ms ease, box-shadow 140ms ease;
+}
+
+.input:focus,
+.textarea:focus {
+  outline: none;
+  border-color: var(--blue-500);
+  box-shadow: var(--shadow-focus);
+}
+
+.input.invalid,
+.textarea.invalid {
+  border-color: var(--danger-600);
+}
+
+.textarea {
+  max-width: none;
+  min-height: 118px;
+  border-radius: 14px;
+  resize: vertical;
+  font-size: 15px;
+  line-height: 1.55;
+}
+
+.wordCount {
+  font-size: 12px;
+  color: var(--ink-400);
+  margin-top: 6px;
+}
+
+.optionList {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  max-width: 40em;
+}
+
+.option {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 13px 16px;
+  border-radius: 13px;
+  border: 1.5px solid var(--ink-200);
+  background: var(--paper-0);
+  text-align: left;
+  transition: border-color 140ms ease, background 140ms ease, transform 140ms ease;
+}
+
+.option:hover {
+  transform: translateY(-1px);
+}
+
+.optionSelected {
+  background: var(--blue-50);
+  border-color: var(--blue-600);
+}
+
+.optionSelected .optionLabel {
+  font-weight: 800;
+}
+
+.mark {
+  flex: 0 0 19px;
+  width: 19px;
+  height: 19px;
+  border-radius: 999px;
+  border: 1.5px solid var(--ink-300);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--paper-0);
+  font-size: 11px;
+  line-height: 1;
+}
+
+.markSquare {
+  border-radius: 6px;
+}
+
+.optionSelected .mark {
+  background: var(--blue-600);
+  border-color: var(--blue-600);
+}
+
+.optionLabel {
+  font-size: 15px;
+  color: var(--ink-900);
+}
+
+.scaleRow {
+  display: flex;
+  gap: 8px;
+}
+
+.scaleBtn {
+  flex: 1 1 0;
+  padding: 13px 4px;
+  border-radius: 12px;
+  border: 1.5px solid var(--ink-200);
+  background: var(--paper-0);
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--ink-700);
+  text-align: center;
+  transition: border-color 140ms ease, background 140ms ease, color 140ms ease;
+}
+
+.scaleBtnSelected {
+  background: var(--blue-600);
+  border-color: var(--blue-600);
+  color: #fff;
+}
+
+.scaleEnds {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 8px;
+}
+
+.scaleEnds span {
+  font-size: 12.5px;
+  color: var(--ink-500);
+}
+
+.note {
+  background: var(--paper-0);
+  border-left: 3px solid var(--ember-500);
+  border-radius: 0 12px 12px 0;
+  padding: 18px 20px;
+  font-size: 14.5px;
+  line-height: 1.65;
+  color: var(--ink-700);
+}

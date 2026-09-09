@@ -1,0 +1,79 @@
+.screen {
+  max-width: 620px;
+  min-height: 100vh;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  text-align: center;
+  padding: 40px 24px;
+}
+
+.emblem {
+  width: 96px;
+  height: 96px;
+}
+
+.pill {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border: 2px solid var(--ink-900);
+  border-radius: var(--radius-pill);
+  padding: 5px 14px;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.sparkle {
+  position: absolute;
+  top: 0;
+  right: 0;
+  margin: -7px -7px 0 0;
+}
+
+.h2 {
+  font-size: clamp(32px, 5vw, 50px);
+  font-weight: 900;
+  letter-spacing: -0.03em;
+  line-height: 1.05;
+}
+
+.body {
+  font-size: 16px;
+  line-height: 1.6;
+  color: var(--ink-600);
+  max-width: 34em;
+}
+
+.actions {
+  display: flex;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.primaryBtn {
+  background: var(--ink-900);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-pill);
+  padding: 12px 24px;
+  font-size: 14.5px;
+  font-weight: 800;
+}
+
+.secondaryBtn {
+  background: none;
+  border: 1.5px solid var(--ink-300);
+  border-radius: var(--radius-pill);
+  padding: 12px 24px;
+  font-size: 14.5px;
+  font-weight: 800;
+  color: var(--ink-900);
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+}

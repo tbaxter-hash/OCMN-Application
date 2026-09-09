@@ -1,0 +1,228 @@
+.screen {
+  max-width: 1180px;
+  min-height: 100vh;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: clamp(20px, 4vh, 48px);
+  padding: clamp(20px, 3.5vh, 40px) 28px clamp(24px, 4vh, 48px);
+}
+
+.columns {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: clamp(28px, 4vw, 56px);
+}
+
+.left {
+  flex: 1 1 460px;
+  display: flex;
+  flex-direction: column;
+  gap: clamp(14px, 2.4vh, 22px);
+}
+
+.logo {
+  height: clamp(40px, 7.5vh, 78px);
+  width: auto;
+}
+
+.pill {
+  align-self: flex-start;
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  border: 2px solid var(--ink-900);
+  border-radius: var(--radius-pill);
+  padding: 5px 14px;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.sparkle {
+  position: absolute;
+  top: 0;
+  right: 0;
+  margin: -7px -7px 0 0;
+}
+
+.h1 {
+  font-size: clamp(34px, 5.6vh, 62px);
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: -0.03em;
+}
+
+.h1 span {
+  display: block;
+}
+
+.body {
+  font-size: clamp(15px, 1.9vh, 18px);
+  color: var(--ink-600);
+  max-width: 30em;
+}
+
+.saveNote {
+  font-size: clamp(13px, 1.6vh, 15px);
+  color: var(--ink-500);
+}
+
+@media (max-height: 700px) {
+  .saveNote {
+    display: none;
+  }
+}
+
+.lookFor {
+  border-top: 1px solid var(--ink-200);
+  padding-top: clamp(14px, 2.2vh, 22px);
+  display: flex;
+  flex-direction: column;
+  gap: clamp(10px, 1.6vh, 16px);
+}
+
+.eyebrow {
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+  color: var(--ink-500);
+}
+
+.lookForGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+  gap: clamp(10px, 1.6vh, 18px) 26px;
+}
+
+.lookForLabel {
+  font-size: 12.5px;
+  font-weight: 900;
+  color: var(--blue-600);
+  margin-bottom: 3px;
+}
+
+.lookForDesc {
+  font-size: 13.5px;
+  line-height: 1.45;
+  color: var(--ink-600);
+}
+
+.closing {
+  font-size: 13.5px;
+  color: var(--ink-500);
+}
+
+.right {
+  flex: 1 1 360px;
+}
+
+.card {
+  background: var(--paper-0);
+  border: 1px solid var(--ink-200);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-md);
+  padding: clamp(16px, 3vh, 30px) clamp(20px, 2vw, 28px);
+}
+
+.cardTitle {
+  font-size: clamp(19px, 2.5vh, 22px);
+  font-weight: 900;
+}
+
+.cardSub {
+  font-size: 14px;
+  color: var(--ink-500);
+  margin: 4px 0 clamp(12px, 2vh, 20px);
+}
+
+.pathList {
+  display: flex;
+  flex-direction: column;
+  gap: clamp(7px, 1.2vh, 12px);
+}
+
+.pathRow {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: clamp(10px, 2vh, 18px) 20px;
+  border-radius: 14px;
+  border: 1.5px solid var(--ink-200);
+  background: var(--paper-0);
+  text-align: left;
+  transition: transform 140ms ease, background 140ms ease, border-color 140ms ease;
+}
+
+.pathRow:hover {
+  transform: translateY(-2px);
+}
+
+.pathRowSelected {
+  background: var(--ink-900);
+  border-color: var(--ink-900);
+}
+
+.pathRowSelected .pathTitle,
+.pathRowSelected .pathDesc {
+  color: #fff;
+}
+
+.pathTitleRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.pathTitle {
+  font-size: 16.5px;
+  font-weight: 900;
+  color: var(--ink-900);
+}
+
+.pathArrow {
+  color: var(--ink-400);
+}
+
+.pathRowSelected .pathArrow {
+  color: #fff;
+}
+
+.pathDesc {
+  font-size: 13.5px;
+  color: var(--ink-500);
+}
+
+.resumeDivider {
+  border-top: 1px solid var(--ink-200);
+  margin-top: clamp(10px, 1.8vh, 18px);
+  padding-top: clamp(10px, 1.8vh, 18px);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.resumeText {
+  font-size: 13.5px;
+  color: var(--ink-600);
+}
+
+.resumeName {
+  font-weight: 800;
+  color: var(--ink-900);
+}
+
+.resumeBtn {
+  background: var(--ink-900);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-pill);
+  padding: 10px 20px;
+  font-size: 13.5px;
+  font-weight: 800;
+  white-space: nowrap;
+}
