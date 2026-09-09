@@ -1,7 +1,7 @@
 "use client";
 
 import Image from "next/image";
-import { missingRequired, progressCounts } from "@/lib/derived";
+import { missingRequired, outstandingCount, progressCounts } from "@/lib/derived";
 import type { Answers, Step } from "@/lib/types";
 import styles from "./Sidebar.module.css";
 
@@ -59,7 +59,8 @@ export default function Sidebar({ steps, currentIdx, answers, onJump, onGoWelcom
             </div>
             {group.items.map(({ step, idx }) => {
               const isCurrent = idx === currentIdx;
-              const isComplete = missingRequired(step, answers).length === 0;
+              const isComplete =
+                step.id === "review" ? outstandingCount(answers) === 0 : missingRequired(step, answers).length === 0;
               return (
                 <button
                   type="button"

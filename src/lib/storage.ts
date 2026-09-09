@@ -55,10 +55,17 @@ export function persist(answers: Answers, idx: number): string {
     hour: "numeric",
     minute: "2-digit",
   });
+  const snapshot: SavedState = { answers, idx, savedAt };
   if (typeof window !== "undefined") {
     try {
-      window.localStorage.setItem(STORAGE_KEY, JSON.stringify({ answers, idx, savedAt }));
-      cachedRaw = null; // invalidate cache so a same-tab re-read (e.g. after resume) sees the write
+      const raw = JSON.stringify(snapshot);
+      window.localStorage.setItem(STORAGE_KEY, raw);
+      // Set the cache to the known new value directly, rather than merely
+      // invalidating it — `null` is a legitimate raw value (empty storage),
+      // so nulling cachedRaw here would make a later real `null` read look
+      // like a cache hit and return this stale snapshot.
+      cachedRaw = raw;
+      cachedSnapshot = snapshot;
     } catch {
       // storage unavailable (private browsing, quota) — autosave silently no-ops
     }
@@ -70,8 +77,9 @@ export function clearSaved(): void {
   if (typeof window === "undefined") return;
   try {
     window.localStorage.removeItem(STORAGE_KEY);
-    cachedRaw = null;
   } catch {
     // ignore
   }
+  cachedRaw = null;
+  cachedSnapshot = null;
 }
