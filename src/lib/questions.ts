@@ -206,7 +206,7 @@ export const STEPS: Step[] = [
   {
     id: "resilience",
     group: "Readiness",
-    label: "You & your family",
+    label: "The cost",
     eyebrow: "Readiness",
     w: notParent,
     title: "The cost, honestly",
