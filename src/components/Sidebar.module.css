@@ -9,6 +9,16 @@
   gap: 26px;
 }
 
+@media (max-width: 900px) {
+  .sidebar {
+    flex: none;
+    width: 100%;
+    min-width: 0;
+    border-right: none;
+    border-bottom: 1px solid var(--ink-200);
+  }
+}
+
 .brand {
   display: flex;
   align-items: center;

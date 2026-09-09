@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useState, useSyncExternalStore } from "react";
-import { missingRequired, outstanding, visibleSteps } from "@/lib/derived";
+import { missingRequired, outstanding, outstandingCount, visibleSteps } from "@/lib/derived";
 import { clearSaved, getSavedSnapshot, getServerSavedSnapshot, persist, subscribeSaved } from "@/lib/storage";
 import type { AnswerValue, Answers, Screen } from "@/lib/types";
 import WelcomeScreen from "./WelcomeScreen";
@@ -9,6 +9,7 @@ import Sidebar from "./Sidebar";
 import FormScreen from "./FormScreen";
 import ReviewScreen from "./ReviewScreen";
 import ConfirmationScreen from "./ConfirmationScreen";
+import FooterBar from "./FooterBar";
 import styles from "./PlanterApp.module.css";
 
 export default function PlanterApp() {
@@ -138,35 +139,50 @@ export default function PlanterApp() {
 
   if (!currentStep) return null;
 
+  const isReview = currentStep.id === "review";
   const missing = missingRequired(currentStep, answers);
+  const statusText =
+    showErr && missing.length > 0
+      ? `We need ${missing.length} more answer${missing.length === 1 ? "" : "s"} on this step.`
+      : saveNote
+        ? `Saved ${saveNote}`
+        : "";
 
   return (
-    <div className={styles.layout}>
-      <Sidebar steps={steps} currentIdx={boundedIdx} answers={answers} onJump={jump} onGoWelcome={goWelcome} />
-      {currentStep.id === "review" ? (
-        <ReviewScreen
-          steps={steps}
-          stepIndex={boundedIdx}
-          totalSteps={steps.length}
-          answers={answers}
-          onEdit={jump}
-          onGoFirstIncomplete={() => {
-            const items = outstanding(answers);
-            if (items.length) jump(items[0].stepIndex);
-          }}
-          onSubmit={submit}
-        />
+    <div className={styles.page}>
+      <div className={styles.row}>
+        <Sidebar steps={steps} currentIdx={boundedIdx} answers={answers} onJump={jump} onGoWelcome={goWelcome} />
+        {isReview ? (
+          <ReviewScreen
+            steps={steps}
+            stepIndex={boundedIdx}
+            totalSteps={steps.length}
+            answers={answers}
+            onEdit={jump}
+            onGoFirstIncomplete={() => {
+              const items = outstanding(answers);
+              if (items.length) jump(items[0].stepIndex);
+            }}
+          />
+        ) : (
+          <FormScreen
+            step={currentStep}
+            stepIndex={boundedIdx}
+            totalSteps={steps.length}
+            answers={answers}
+            showErr={showErr}
+            missing={missing}
+            onAnswer={onAnswer}
+          />
+        )}
+      </div>
+      {isReview ? (
+        <FooterBar variant="review" outstandingCount={outstandingCount(answers)} onSubmit={submit} />
       ) : (
-        <FormScreen
-          step={currentStep}
-          stepIndex={boundedIdx}
-          totalSteps={steps.length}
-          answers={answers}
-          showErr={showErr}
-          forced={forced}
-          missing={missing}
-          saveNote={saveNote}
-          onAnswer={onAnswer}
+        <FooterBar
+          variant="form"
+          statusText={statusText}
+          showSkip={forced && missing.length > 0}
           onBack={back}
           onContinue={continueStep}
           onSkip={goNext}

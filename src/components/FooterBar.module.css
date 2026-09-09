@@ -1,0 +1,71 @@
+.footerBar {
+  position: sticky;
+  bottom: 0;
+  background: rgba(247, 244, 238, 0.92);
+  backdrop-filter: blur(8px);
+  border-top: 1px solid var(--ink-200);
+  padding: 16px 34px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+@media (max-width: 900px) {
+  .footerBar {
+    padding: 14px 20px;
+  }
+}
+
+.reviewBar {
+  justify-content: flex-end;
+}
+
+.backBtn {
+  background: none;
+  border: none;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--ink-600);
+  padding: 8px 4px;
+}
+
+.status {
+  flex: 1;
+  font-size: 13px;
+  color: var(--ink-500);
+  text-align: right;
+  padding-right: 4px;
+}
+
+.skipBtn {
+  background: none;
+  border: 1.5px solid var(--ink-300);
+  border-radius: var(--radius-pill);
+  padding: 10px 18px;
+  font-size: 13.5px;
+  font-weight: 700;
+  color: var(--ink-600);
+  white-space: nowrap;
+}
+
+.continueBtn,
+.submitBtn {
+  background: var(--blue-600);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-pill);
+  padding: 12px 26px;
+  font-size: 14.5px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.continueBtn:hover,
+.submitBtn:hover:not(:disabled) {
+  background: var(--blue-700);
+}
+
+.submitBtn:disabled {
+  background: var(--ink-300);
+  cursor: not-allowed;
+}

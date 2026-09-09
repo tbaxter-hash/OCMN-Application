@@ -11,7 +11,6 @@ interface Props {
   answers: Answers;
   onEdit: (idx: number) => void;
   onGoFirstIncomplete: () => void;
-  onSubmit: () => void;
 }
 
 function truncate(text: string, max: number): string {
@@ -25,7 +24,7 @@ function formatValue(value: AnswerValue | undefined): string {
   return String(value);
 }
 
-export default function ReviewScreen({ steps, stepIndex, totalSteps, answers, onEdit, onGoFirstIncomplete, onSubmit }: Props) {
+export default function ReviewScreen({ steps, stepIndex, totalSteps, answers, onEdit, onGoFirstIncomplete }: Props) {
   const reviewable = steps.filter((s) => s.id !== "review");
   const total = outstandingCount(answers);
 
@@ -86,11 +85,6 @@ export default function ReviewScreen({ steps, stepIndex, totalSteps, answers, on
             );
           })}
         </div>
-      </div>
-      <div className={styles.footerBar}>
-        <button type="button" className={styles.submitBtn} disabled={total > 0} onClick={onSubmit}>
-          {total > 0 ? `Finish the last ${total}` : "Submit application"}
-        </button>
       </div>
     </div>
   );

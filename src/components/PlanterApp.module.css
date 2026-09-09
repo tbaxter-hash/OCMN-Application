@@ -1,5 +1,18 @@
-.layout {
+.page {
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column;
   min-height: 100vh;
+}
+
+.row {
+  display: flex;
+  flex: 1;
+}
+
+/* Below this, sidebar + main can't share a row without cramping both —
+   stack them instead of leaving it to flex-wrap. */
+@media (max-width: 900px) {
+  .row {
+    flex-direction: column;
+  }
 }
