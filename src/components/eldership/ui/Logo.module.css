@@ -1,0 +1,37 @@
+.logo {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.15;
+}
+
+.mark {
+  font-family: var(--font-display);
+  font-weight: var(--fw-black);
+  text-transform: uppercase;
+  letter-spacing: var(--ls-display);
+}
+
+.sub {
+  font-family: var(--font-ui);
+  font-weight: var(--fw-bold);
+  font-size: 0.42em;
+  text-transform: uppercase;
+  letter-spacing: var(--ls-eyebrow);
+  margin-top: 2px;
+}
+
+.dark .mark {
+  color: var(--text-heading);
+}
+
+.dark .sub {
+  color: var(--gold-600);
+}
+
+.white .mark {
+  color: var(--paper-000);
+}
+
+.white .sub {
+  color: var(--gold-500);
+}

@@ -1,0 +1,15 @@
+.value {
+  font-family: var(--font-display);
+  font-weight: var(--fw-black);
+  letter-spacing: var(--ls-display);
+  line-height: 1;
+  font-size: clamp(28px, 2.6vw, 38px);
+}
+
+.label {
+  font-family: var(--font-ui);
+  font-weight: var(--fw-bold);
+  font-size: 13px;
+  color: var(--text-muted);
+  margin-top: 8px;
+}

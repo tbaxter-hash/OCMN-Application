@@ -1,0 +1,27 @@
+.card {
+  overflow: hidden;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+}
+
+.cell {
+  padding: 26px 24px;
+  border-left: 1px solid var(--border-hairline);
+}
+
+.cell:first-child {
+  border-left: none;
+}
+
+@media (max-width: 700px) {
+  .grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .cell:nth-child(2n + 1) {
+    border-left: none;
+  }
+}

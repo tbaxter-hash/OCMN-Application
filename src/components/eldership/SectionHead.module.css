@@ -1,0 +1,20 @@
+.wrap {
+  margin-bottom: 20px;
+  padding-top: 8px;
+}
+
+.title {
+  font-size: clamp(24px, 2.4vw, 32px);
+  text-transform: uppercase;
+  color: var(--text-heading);
+  margin: 10px 0 0;
+}
+
+.note {
+  font-family: var(--font-body);
+  font-size: 15px;
+  color: var(--text-muted);
+  margin: 8px 0 0;
+  max-width: 620px;
+  text-wrap: pretty;
+}

@@ -1,0 +1,80 @@
+.sidebar {
+  width: 244px;
+  flex: 0 0 244px;
+  background: var(--indigo-900);
+  min-height: 100vh;
+  padding: 26px 0;
+  display: flex;
+  flex-direction: column;
+  position: sticky;
+  top: 0;
+  align-self: flex-start;
+  height: 100vh;
+}
+
+.brand {
+  padding: 0 22px 26px;
+}
+
+.section {
+  color: rgba(255, 255, 255, 0.42);
+  padding: 0 22px 10px;
+}
+
+.nav {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 0 12px;
+}
+
+.navItem {
+  text-align: left;
+  border: none;
+  cursor: pointer;
+  border-radius: var(--radius-md);
+  padding: 11px 14px;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.66);
+  font-family: var(--font-ui);
+  font-weight: var(--fw-bold);
+  font-size: 13.5px;
+  letter-spacing: 0.02em;
+  border-left: 3px solid transparent;
+  transition: background var(--dur) var(--ease-out), color var(--dur) var(--ease-out);
+}
+
+.navItem:hover {
+  color: var(--gold-500);
+}
+
+.navItemActive,
+.navItemActive:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--paper-000);
+  border-left-color: var(--ember-500);
+}
+
+.signedIn {
+  margin-top: auto;
+  padding: 22px 22px 0;
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  margin-left: 12px;
+  margin-right: 12px;
+}
+
+.signedInLabel {
+  color: var(--gold-500);
+  margin-bottom: 6px;
+}
+
+.signedInName {
+  font-family: var(--font-body);
+  font-size: 13.5px;
+  color: rgba(255, 255, 255, 0.8);
+  line-height: 1.45;
+}
+
+.signedInRole {
+  color: rgba(255, 255, 255, 0.45);
+}
