@@ -41,6 +41,11 @@ export function needsCred(a: Answers): boolean {
   return a.creds === "No";
 }
 
+export function hasEducation(a: Answers): boolean {
+  const eduWhere = a.eduWhere;
+  return Array.isArray(eduWhere) && eduWhere.some((v) => v !== "None of these yet");
+}
+
 export function notParent(a: Answers): boolean {
   return a.path !== "parent";
 }
@@ -278,6 +283,19 @@ export const STEPS: Step[] = [
     ],
   },
   {
+    id: "cred-education",
+    group: "Credentials",
+    label: "Training & transcripts",
+    eyebrow: "AG pre-application",
+    w: needsCred,
+    title: "Ministerial training",
+    intro: "Tell us where you’ve studied so we know what the rest of this process looks like for you.",
+    qs: [
+      { id: "eduWhere", t: "multi", l: "Where have you taken ministerial, Bible, or theology courses?", h: "Check all that apply.", o: ["Global University / Berean School of the Bible", "Ohio School of Ministry (OSOM)", "Another AG college, university, or District School of Ministry", "A non-AG Bible college or university", "None of these yet"] },
+      { id: "transcripts", t: "radio", l: "Have your transcripts been sent to credentialing@ohioministry.net?", h: "The sooner we have them, the sooner a transcript review can happen. Additional coursework is sometimes required.", req: 1, o: ["Yes", "They’re on the way", "Not yet"] },
+    ],
+  },
+  {
     id: "cred-basics",
     group: "Credentials",
     label: "Background basics",
@@ -372,19 +390,6 @@ export const STEPS: Step[] = [
       { id: "ls1", t: "radio", l: "In the last seven years — or since your conversion, if that was more recent — have you had sexual contact or activity outside of biblically defined marriage, or been involved in pornography?", req: 1, o: ["No", "Yes"] },
       { id: "ls2", t: "radio", l: "In the past 24 months, have you struggled with any life-controlling habits that would hinder the leadership qualifications of 1 Timothy 3:1-7 and Titus 1:5-9?", req: 1, o: ["No", "Yes"] },
       { id: "lsNotes", t: "long", l: "Anything you’d like to add?", h: "Optional." },
-    ],
-  },
-  {
-    id: "cred-edu",
-    group: "Credentials",
-    label: "Training & transcripts",
-    eyebrow: "AG pre-application",
-    w: needsCred,
-    title: "Ministerial training",
-    intro: "Tell us where you’ve studied so a transcript review can be started.",
-    qs: [
-      { id: "eduWhere", t: "multi", l: "Where have you taken ministerial, Bible, or theology courses?", h: "Check all that apply.", o: ["Global University / Berean School of the Bible", "Ohio School of Ministry (OSOM)", "Another AG college, university, or District School of Ministry", "A non-AG Bible college or university", "None of these yet"] },
-      { id: "transcripts", t: "radio", l: "Have your transcripts been sent to credentialing@ohioministry.net?", h: "The sooner we have them, the sooner a transcript review can happen. Additional coursework is sometimes required.", req: 1, o: ["Yes", "They’re on the way", "Not yet"] },
     ],
   },
   {
