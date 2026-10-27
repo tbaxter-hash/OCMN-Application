@@ -27,6 +27,23 @@ Open [http://localhost:3000](http://localhost:3000).
 - **Screens**: Welcome, Form (sidebar + question steps), Review & submit,
   Confirmation — in `src/components/`.
 
+## Budget planner (`/budget`)
+
+A simple financial plan for church planters, built from the OCMN Church Budget
+Template (Profit and Loss Budget Overview). Each line takes two numbers — a one-time
+launch amount and a typical month — and the planner works out year-one totals.
+
+- **Generosity first**: 3% Heart for Ohio (Ohio Ministry Network) and missions giving
+  (AG World & U.S. Missions, 3% by default) are figured automatically as a percentage
+  of income — all income by default, or tithes & offerings only.
+- **Health check**: live best-practice checks (monthly balance, launch funding,
+  reserve, payroll share, local-giving self-support, insurance, background checks,
+  CMN matching-fund cap).
+- **Best practices** from CMN and national church-planting sources, with links.
+- Download as CSV, or print with pastor and advisory-committee signature lines.
+- Schema, math, and checks live in `src/lib/budget.ts`; saved in `localStorage`
+  under `ocmn-budget-planner-v1`.
+
 ## Known gaps (see `docs/design-handoff.md` for detail)
 
 A production build still needs, at minimum:

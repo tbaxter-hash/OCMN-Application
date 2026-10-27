@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import { PATHS } from "@/lib/questions";
 import Sparkle from "./Sparkle";
 import styles from "./WelcomeScreen.module.css";
@@ -62,6 +63,12 @@ export default function WelcomeScreen({ firstName, savedAt, hasSaved, onSelectPa
           <p className={styles.closing}>
             Not credentialed with the Assemblies of God yet? Not a problem — we’ll walk you
             through it right inside this application.
+          </p>
+          <p className={styles.closing}>
+            Counting the cost?{" "}
+            <Link href="/budget" className={styles.closingLink}>
+              Try the OCMN Budget Planner →
+            </Link>
           </p>
         </div>
 
