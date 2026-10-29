@@ -169,7 +169,6 @@ svg { fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round
 .btn-primary:hover { background: var(--blue-700); }
 .btn-ghost { background: transparent; border-color: var(--ink-200); padding: 7px 14px; font-size: 13px; }
 .btn-ghost:hover { background: var(--paper-0); }
-a.btn { text-decoration: none; color: var(--ink-900); }
 
 /* ---------- empty state ---------- */
 
@@ -596,8 +595,6 @@ body.is-dragging .dropveil { display: grid; }
       <button class="link" data-pick>Change</button>
     </div>
     <button class="btn btn-ghost" id="clear" hidden>Clear</button>
-    <!-- Shown only when opened from the website, so people can keep their own offline copy. -->
-    <a class="btn btn-ghost" id="download" href="OCMN Application Printer.html" download="OCMN Application Printer.html" hidden>Download for offline use</a>
     <div class="private" title="This page has no access to the internet. Responses are read in this browser tab and are gone when you close it.">
       <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4.5" y="10.5" width="15" height="10" rx="2.5"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3"/></svg>
       Private · works offline
@@ -1789,7 +1786,6 @@ function init() {
   $("#include-cred").addEventListener("change", (e) => { state.includeCred = e.target.checked; renderPreview(); });
   $("#save").addEventListener("click", savePdf);
   $("#clear").addEventListener("click", clearAll);
-  $("#download").hidden = !/^https?:$/.test(location.protocol);
 
   render();
 }

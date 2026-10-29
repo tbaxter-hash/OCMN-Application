@@ -154,7 +154,6 @@ svg { fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round
 .btn-primary:hover { background: var(--blue-700); }
 .btn-ghost { background: transparent; border-color: var(--ink-200); padding: 7px 14px; font-size: 13px; }
 .btn-ghost:hover { background: var(--paper-0); }
-a.btn { text-decoration: none; color: var(--ink-900); }
 
 /* ---------- empty state ---------- */
 
