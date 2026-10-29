@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- Nothing on this page may contact the internet: no fetches, no fonts, no images from elsewhere. -->
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; img-src data:; font-src data:; connect-src 'none'; form-action 'none'; base-uri 'none'">
+<title>OCMN Application Printer</title>
+<link rel="icon" href="{{EMBLEM}}">
+<style>
+{{FONTS}}
+{{STYLES}}
+</style>
+<style id="page-style"></style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="brand">
+    <img src="{{EMBLEM}}" alt="">
+    <div class="brand-text"><strong>OCMN</strong><span>Application Printer</span></div>
+  </div>
+  <div class="topbar-right">
+    <div class="file-chip" id="file-chip" hidden>
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/></svg>
+      <span id="file-name"></span>
+      <button class="link" data-pick>Change</button>
+    </div>
+    <button class="btn btn-ghost" id="clear" hidden>Clear</button>
+    <div class="private" title="This page has no access to the internet. Responses are read in this browser tab and are gone when you close it.">
+      <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4.5" y="10.5" width="15" height="10" rx="2.5"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3"/></svg>
+      Private · works offline
+    </div>
+  </div>
+</header>
+
+<input type="file" id="file-input" accept=".xlsx,.csv" hidden>
+
+<main id="empty" class="empty">
+  <div class="empty-copy">
+    <div class="pill">Application <span class="accent">Printer</span><svg class="sparkle" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2v20M2 12h20M4.9 4.9l14.2 14.2M19.1 4.9 4.9 19.1"/></svg></div>
+    <h1>Form responses in.<br><span class="accent">Finished applications out.</span></h1>
+    <p class="lead">Open the Planter Application export from Microsoft Forms and every response becomes a clean, branded PDF — ready to read, file, or share with the team.</p>
+    <p class="lead">Applicants without Assemblies of God credentials get a second, confidential <strong>Credentialing Pre-Application</strong> holding only the credentialing answers, ready to send to the credentialing department.</p>
+
+    <ol class="steps">
+      <li><span>1</span><div><strong>Download the responses.</strong> In Microsoft Forms, open the Planter Application › <em>Responses</em> › <em>Open results in Excel</em>, and save the .xlsx file.</div></li>
+      <li><span>2</span><div><strong>Open it here.</strong> Drop the file on this page or choose it below.</div></li>
+      <li><span>3</span><div><strong>Save as PDF.</strong> Pick an applicant and press Save. In the print window choose <em>Save as PDF</em>.</div></li>
+    </ol>
+  </div>
+
+  <div class="empty-side">
+    <button class="drop" data-pick>
+      <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 15V4"/><path d="m7.5 8.5 4.5-4.5 4.5 4.5"/><path d="M4 15v3a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-3"/></svg>
+      <span class="drop-title">Drop the Excel export here</span>
+      <span class="drop-sub">or <u>choose a file</u> · .xlsx or .csv</span>
+    </button>
+    <div class="error" id="error" role="alert" hidden></div>
+    <div class="privacy">
+      <div class="privacy-title">Applicant information stays on this computer</div>
+      <p>This file runs entirely inside your browser. It is locked so it cannot reach the internet — nothing is uploaded, stored, or sent to any AI service. Close the tab and the responses are gone.</p>
+    </div>
+  </div>
+</main>
+
+<div id="workspace" class="workspace" hidden>
+  <aside class="sidebar">
+    <div class="filters">
+      <button data-filter="all" aria-pressed="true">All <b id="count-all">0</b></button>
+      <button data-filter="cred" aria-pressed="false">Needs credentialing <b id="count-cred">0</b></button>
+    </div>
+    <input id="search" type="search" placeholder="Search by name, email, church…" aria-label="Search applicants">
+    <ul class="list" id="list"></ul>
+    <div class="colcheck" id="colcheck"></div>
+  </aside>
+
+  <section class="preview" id="preview">
+    <div class="toolbar">
+      <div class="tabs" role="tablist">
+        <button role="tab" data-view="app" aria-selected="true">Full application</button>
+        <button role="tab" data-view="cred" id="tab-cred" aria-selected="false">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4.5" y="10.5" width="15" height="10" rx="2.5"/><path d="M8 10.5V7.5a4 4 0 0 1 8 0v3"/></svg>
+          Credentialing packet
+        </button>
+      </div>
+      <label class="toggle" id="include-cred-wrap" hidden>
+        <input type="checkbox" id="include-cred">
+        <span class="toggle-track"></span>
+        Include credentialing answers
+      </label>
+      <button class="btn btn-primary" id="save">
+        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 4v11"/><path d="m7.5 10.5 4.5 4.5 4.5-4.5"/><path d="M5 20h14"/></svg>
+        <span id="save-label">Save application as PDF</span>
+      </button>
+    </div>
+    <p class="hint" id="cred-note" hidden>This applicant doesn't hold AG credentials. Their credentialing answers are kept out of the full application — open the <strong>Credentialing packet</strong> tab to save it for the credentialing department.</p>
+    <p class="hint hint-print">In the print window, set the destination to <strong>Save as PDF</strong>. Under <em>More settings</em>, turn <em>Headers and footers</em> off for the cleanest result.</p>
+    <div class="paper" id="paper"></div>
+  </section>
+</div>
+
+<div class="dropveil" aria-hidden="true"><div>Drop to open</div></div>
+
+<script>
+const ASSETS = { logo: "{{LOGO}}", emblemWhite: "{{EMBLEM_WHITE}}" };
+{{SCRIPTS}}
+</script>
+</body>
+</html>
