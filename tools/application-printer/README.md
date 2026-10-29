@@ -3,12 +3,10 @@
 A single HTML file that turns the Microsoft Forms export of the **OCMN – Planter
 Application** into polished, OCMN-branded PDFs — one per applicant.
 
-**Use it online:** https://tbaxter-hash.github.io/OCMN-Application/ (published by
-`.github/workflows/application-printer-pages.yml`). Responses are still read only inside
-your browser; the site never receives them.
-
-**Or keep your own copy:** download `dist/OCMN Application Printer.html` to your desktop and
-double-click it. It opens in your browser (Chrome or Edge recommended).
+**Get it:** [download the zip](https://github.com/tbaxter-hash/OCMN-Application/raw/claude/keen-brown-pcqunp/tools/application-printer/dist/OCMN%20Application%20Printer.zip),
+unzip it, and put `OCMN Application Printer.html` on your desktop. Double-click it and it
+opens in your browser (Chrome or Edge recommended). It runs entirely on your computer and
+works without internet — this is also the file to send anyone else who needs it.
 
 1. In Microsoft Forms, open the Planter Application › **Responses** › **Open results in
    Excel**, and save the `.xlsx` file.
