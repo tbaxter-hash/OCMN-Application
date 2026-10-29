@@ -198,6 +198,7 @@ function init() {
   $("#include-cred").addEventListener("change", (e) => { state.includeCred = e.target.checked; renderPreview(); });
   $("#save").addEventListener("click", savePdf);
   $("#clear").addEventListener("click", clearAll);
+  $("#download").hidden = !/^https?:$/.test(location.protocol);
 
   render();
 }
