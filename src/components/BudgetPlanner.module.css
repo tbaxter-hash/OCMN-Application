@@ -103,6 +103,11 @@
   line-height: 1.5;
 }
 
+.noteError {
+  background: var(--warning-100);
+  color: var(--warning-600);
+}
+
 @media (max-width: 1180px) {
   .submitNote {
     margin: 16px 16px 0;

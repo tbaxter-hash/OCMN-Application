@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useState, useSyncExternalStore } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import {
   BEST_PRACTICES,
   BUDGET_STORAGE_KEY,
@@ -20,7 +20,7 @@ import {
   type GivingBase,
   type Pair,
 } from "@/lib/budget";
-import { buildBudgetWorkbook } from "@/lib/budgetWorkbook";
+import { buildBudgetWorkbook, readBudgetWorkbook } from "@/lib/budgetWorkbook";
 import Sparkle from "./Sparkle";
 import styles from "./BudgetPlanner.module.css";
 
@@ -38,6 +38,8 @@ function loadBudget(): BudgetState {
 }
 
 const OCMN_EMAIL = "ocmn@ohioministry.net";
+
+const preloadExcel = () => void import("exceljs");
 
 const noopSubscribe = () => () => {};
 
@@ -76,7 +78,8 @@ function Planner() {
       lines: { ...b.lines, [id]: { ...(b.lines[id] ?? { launch: "", monthly: "" }), [field]: value } },
     }));
 
-  const [submitted, setSubmitted] = useState(false);
+  const [notice, setNotice] = useState<{ tone: "success" | "error"; text: React.ReactNode } | null>(null);
+  const fileInput = useRef<HTMLInputElement>(null);
 
   const downloadWorkbook = async () => {
     const blob = await buildBudgetWorkbook(budget);
@@ -92,10 +95,18 @@ function Planner() {
     return a.download;
   };
 
-  // There's no backend yet, so submitting means downloading the workbook and
-  // opening an email to OCMN for the planter to attach it to.
-  const downloadAndSubmit = async () => {
-    const fileName = await downloadWorkbook();
+  const download = async () => {
+    try {
+      const fileName = await downloadWorkbook();
+      setNotice({ tone: "success", text: `Downloaded ${fileName}. Look for it in your Downloads folder.` });
+    } catch {
+      setNotice({ tone: "error", text: "The download didn’t start. Try again, or use a different browser." });
+    }
+  };
+
+  // There's no backend yet, so submitting opens an email to OCMN for the
+  // planter to attach the downloaded workbook to.
+  const submit = () => {
     const church = budget.churchName || "our church plant";
     const subject = `Budget plan — ${church} (${budget.year})`;
     const body = [
@@ -103,12 +114,39 @@ function Planner() {
       "",
       `Attached is the budget plan for ${church} for ${budget.year}${budget.launchDate ? `, launching ${budget.launchDate}` : ""}.`,
       "",
-      `(Attach the file ${fileName} from your Downloads folder before sending.)`,
+      "(Attach the Excel file from your Downloads folder before sending.)",
     ].join("\n");
-    setSubmitted(true);
+    setNotice({
+      tone: "success",
+      text: (
+        <>
+          Attach your downloaded Excel file to the email addressed to <strong>{OCMN_EMAIL}</strong> and send it.
+          Haven’t downloaded it yet? Use Download Excel first. No email opened? Send the file to that address from
+          your own email.
+        </>
+      ),
+    });
     window.location.assign(
       `mailto:${OCMN_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`,
     );
+  };
+
+  const openSaved = async (file: File) => {
+    try {
+      const { state, averagedLines } = await readBudgetWorkbook(file);
+      setBudget(state);
+      setNotice({
+        tone: "success",
+        text:
+          `Opened ${file.name}. Pick up where you left off — changes save in this browser as you type.` +
+          (averagedLines
+            ? ` ${averagedLines} line${averagedLines === 1 ? "" : "s"} had different amounts by month in Excel, so Monthly shows the average.`
+            : ""),
+      });
+      window.scrollTo(0, 0);
+    } catch (e) {
+      setNotice({ tone: "error", text: e instanceof Error ? e.message : "That file couldn’t be opened." });
+    }
   };
 
   const reset = () => {
@@ -139,22 +177,46 @@ function Planner() {
           <button type="button" className={styles.ghostBtn} onClick={reset}>
             Start over
           </button>
-          <button type="button" className={styles.outlineBtn} onClick={downloadAndSubmit}>
-            Download Excel &amp; submit to OCMN
+          <button type="button" className={styles.ghostBtn} onClick={() => fileInput.current?.click()}>
+            Open saved plan
           </button>
-          <button type="button" className={styles.primaryBtn} onClick={() => window.print()}>
-            Print plan
+          <input
+            ref={fileInput}
+            type="file"
+            accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+            hidden
+            onChange={(e) => {
+              const file = e.target.files?.[0];
+              e.target.value = "";
+              if (file) openSaved(file);
+            }}
+          />
+          <button
+            type="button"
+            className={styles.outlineBtn}
+            onClick={download}
+            // Warm up the spreadsheet library so the download starts right away.
+            onPointerEnter={preloadExcel}
+            onFocus={preloadExcel}
+          >
+            Download Excel
+          </button>
+          <button type="button" className={styles.outlineBtn} onClick={() => window.print()}>
+            Print PDF
+          </button>
+          <button type="button" className={styles.primaryBtn} onClick={submit}>
+            Submit to OCMN
           </button>
         </div>
       </header>
 
-      {submitted ? (
-        <div className={`${styles.submitNote} ${styles.noPrint}`} role="status">
-          <span>
-            Your Excel budget downloaded. Attach it to the email addressed to <strong>{OCMN_EMAIL}</strong> and send it.
-            No email opened? Send the file to that address from your own email.
-          </span>
-          <button type="button" className={styles.ghostBtn} onClick={() => setSubmitted(false)}>
+      {notice ? (
+        <div
+          className={`${styles.submitNote} ${notice.tone === "error" ? styles.noteError : ""} ${styles.noPrint}`}
+          role={notice.tone === "error" ? "alert" : "status"}
+        >
+          <span>{notice.text}</span>
+          <button type="button" className={styles.ghostBtn} onClick={() => setNotice(null)}>
             Dismiss
           </button>
         </div>
@@ -174,7 +236,8 @@ function Planner() {
             <p className={styles.intro}>
               A simple financial plan for your church plant: what launch takes once, what a typical
               month takes after that, and generosity built in from the very first dollar. Your numbers
-              save in this browser as you type.
+              save in this browser as you type. On another computer, choose Open saved plan and pick the
+              Excel file you downloaded to keep editing.
             </p>
             <p className={styles.printOnly}>
               {budget.churchName || "Church Name"} · Budget plan {budget.year}
