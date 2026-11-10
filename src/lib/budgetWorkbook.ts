@@ -9,12 +9,16 @@ import {
   GENEROSITY_EXTRA_LINES,
   INCOME_LINES,
   SOURCES,
+  emptyBudget,
   num,
   type BudgetLine,
   type BudgetState,
+  type GivingBase,
 } from "./budget";
 
 const YEARS = 3;
+// Hidden tab holding what's needed to load the file back into the planner.
+const DATA_SHEET = "PlannerData";
 const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 const GIVE_ALL = "All income";
 const GIVE_TITHES = "Tithes & offerings only";
@@ -200,7 +204,6 @@ function buildYear(wb: Workbook, state: BudgetState, opts: YearOptions): YearLay
     r.getCell(1).value = l.label;
     r.getCell(1).font = font();
     r.getCell(1).alignment = { indent: 1 };
-    if (l.hint) r.getCell(1).note = l.hint;
     const amounts = state.lines[l.id];
     for (const c of valueCols) {
       const cell = r.getCell(c);
@@ -490,6 +493,92 @@ export async function buildBudgetWorkbook(state: BudgetState): Promise<Blob> {
   buildSummary(wb, state, years, startYear);
   buildPractices(wb);
 
+  const data = wb.addWorksheet(DATA_SHEET, { state: "veryHidden" });
+  const saved: SavedLayout = {
+    version: 1,
+    state,
+    sheet: years[0].name,
+    lineRows: years[0].lineRows,
+    launchCol: 2,
+    firstMonthCol: years[0].firstMonthCol,
+  };
+  data.getCell("A1").value = JSON.stringify(saved);
+
   const buffer = await wb.xlsx.writeBuffer();
   return new Blob([buffer], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
+}
+
+interface SavedLayout {
+  version: 1;
+  state: BudgetState;
+  sheet: string;
+  lineRows: Record<string, number>;
+  launchCol: number;
+  firstMonthCol: number;
+}
+
+export interface OpenedPlan {
+  state: BudgetState;
+  /** Lines whose twelve months weren't all the same in Excel; the planner keeps their average. */
+  averagedLines: number;
+}
+
+function cellNumber(cell: Cell): number | null {
+  const v = cell.value;
+  if (typeof v === "number") return v;
+  if (v && typeof v === "object" && "result" in v && typeof v.result === "number") return v.result;
+  if (typeof v === "string") return num(v);
+  return null;
+}
+
+function cellText(cell: Cell): string {
+  const v = cell.value;
+  if (v && typeof v === "object" && "result" in v) return String(v.result ?? "");
+  return v == null ? "" : String(v);
+}
+
+const asInput = (n: number) => (n ? String(Math.round(n * 100) / 100) : "");
+
+// Reads a workbook this planner made, picking up anything changed in Excel on
+// the first year's tab (amounts, generosity rates, giving basis, church name).
+export async function readBudgetWorkbook(file: File): Promise<OpenedPlan> {
+  const ExcelJS = (await import("exceljs")).default;
+  const wb = new ExcelJS.Workbook();
+  try {
+    await wb.xlsx.load(await file.arrayBuffer());
+  } catch {
+    throw new Error("That file couldn’t be opened. Choose the .xlsx file you downloaded from the planner.");
+  }
+  const raw = wb.getWorksheet(DATA_SHEET)?.getCell("A1").value;
+  let saved: SavedLayout;
+  try {
+    saved = JSON.parse(String(raw));
+    if (!saved || saved.version !== 1 || !saved.state?.lines) throw new Error();
+  } catch {
+    throw new Error("This spreadsheet wasn’t made by the OCMN Budget Planner, so it can’t be opened here.");
+  }
+
+  const state: BudgetState = { ...emptyBudget(), ...saved.state, lines: { ...saved.state.lines } };
+  let averagedLines = 0;
+  const ws = wb.getWorksheet(saved.sheet);
+  if (ws) {
+    for (const [id, row] of Object.entries(saved.lineRows)) {
+      const r = ws.getRow(row);
+      const launch = cellNumber(r.getCell(saved.launchCol)) ?? 0;
+      const months = Array.from({ length: 12 }, (_, i) => cellNumber(r.getCell(saved.firstMonthCol + i)) ?? 0);
+      const avg = months.reduce((a, b) => a + b, 0) / 12;
+      if (months.some((m) => Math.abs(m - months[0]) > 0.005)) averagedLines++;
+      state.lines[id] = { launch: asInput(launch), monthly: asInput(avg) };
+    }
+    const heart = cellNumber(ws.getCell("B4"));
+    const missions = cellNumber(ws.getCell("B5"));
+    if (heart != null) state.heartPct = String(Math.round(heart * 1000) / 10);
+    if (missions != null) state.missionsPct = String(Math.round(missions * 1000) / 10);
+    const giveOn = cellText(ws.getCell("B6"));
+    state.givingBase = (giveOn === GIVE_TITHES ? "tithes" : "all") as GivingBase;
+  }
+  const name = wb.getWorksheet("Summary") ? cellText(wb.getWorksheet("Summary")!.getCell("A1")) : "";
+  if (name && name !== "Church Name") state.churchName = name;
+
+  return { state, averagedLines };
 }
