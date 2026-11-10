@@ -104,7 +104,6 @@ export const EXPENSE_GROUPS: BudgetGroup[] = [
 
 // Extra generosity lines entered by hand, beside the two percentage-based ones.
 export const GENEROSITY_EXTRA_LINES: BudgetLine[] = [
-  { id: "multiplication", label: "Church multiplication", hint: "CMN fund repayment or giving toward the next plant." },
   { id: "otherGiving", label: "Other giving" },
 ];
 
@@ -376,7 +375,7 @@ export function healthChecks(state: BudgetState, t: Totals): HealthCheck[] {
       title: "CMN matching funds",
       detail:
         partnerTotal > 0
-          ? "Plan to repay 10% of undesignated monthly income to CMN — the Church multiplication line is a good home for it."
+          ? "Plan to repay 10% of undesignated monthly income to CMN once funds are awarded."
           : "CMN weighs the strength of your primary partner. Add your parent or partner church support.",
     });
   }
@@ -404,15 +403,11 @@ export const BEST_PRACTICES: BestPractice[] = [
   },
   {
     title: "Plan your step-down",
-    body: "Outside support is a runway, not a foundation. Set a date when tithes and offerings carry the church, and step partner and network support down toward it.",
+    body: "Outside support is a runway, not a foundation. Set a date when tithes and offerings carry the church, and step partner and network support down toward it. OCMN grants and opportunities like CMN matching funds won’t last forever.",
   },
   {
     title: "Build a reserve",
     body: "Save every month, even a little. Work toward three months of expenses, then six. A reserve turns a slow summer or a broken sound board into an inconvenience instead of a crisis.",
-  },
-  {
-    title: "Know the CMN matching fund",
-    body: "CMN matches funds you raise, up to $50,000, based on readiness, your ministry plan, your assessment, and your primary partner. Apply at least ten weeks before launch; spouses attend CMN Launch. Recipients repay 10% of undesignated monthly income, and funds can’t go toward buildings or long-term capital projects.",
   },
   {
     title: "Keep money above reproach",
@@ -426,8 +421,6 @@ export const BEST_PRACTICES: BestPractice[] = [
 
 export const SOURCES = [
   { label: "CMN Matching Fund", url: "https://www.churchmultiplication.net/funding" },
-  { label: "CMN FAQ", url: "https://www.churchmultiplication.net/faq" },
-  { label: "CMN Launch", url: "https://www.churchmultiplication.net/launch" },
   { label: "Influence — How to finance your church plant", url: "https://influencemagazine.com/practice/how-to-finance-your-church-plant" },
   { label: "NAMB — Developing a church budget", url: "https://www.namb.net/resource/money-matters-developing-church-budget" },
   { label: "Christianity Today — Church planting costs", url: "https://christianitytoday.com/ct/2023/januaryfebruary/church-planting-costs-startup-money-metrics.html" },
