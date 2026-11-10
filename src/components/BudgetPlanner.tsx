@@ -146,6 +146,33 @@ function Planner() {
             </p>
           </section>
 
+          <section className={`${styles.section} ${styles.noPrint}`}>
+            <SectionHead eyebrow="Before you start" title="Best practices">
+              What the Church Multiplication Network and planters across the country have learned about
+              funding a new church. Keep these in mind as you build your plan.
+            </SectionHead>
+            <div className={styles.practiceGrid}>
+              {BEST_PRACTICES.map((p) => (
+                <div className={styles.practice} key={p.title}>
+                  <h3 className={styles.practiceTitle}>{p.title}</h3>
+                  <p className={styles.practiceBody}>{p.body}</p>
+                </div>
+              ))}
+            </div>
+            <p className={styles.sources}>
+              Sources:{" "}
+              {SOURCES.map((s, i) => (
+                <span key={s.url}>
+                  <a href={s.url} target="_blank" rel="noreferrer">
+                    {s.label}
+                  </a>
+                  {i < SOURCES.length - 1 ? " · " : ""}
+                </span>
+              ))}
+              .
+            </p>
+          </section>
+
           <section className={`${styles.card} ${styles.noPrint}`}>
             <div className={styles.detailsGrid}>
               <label className={styles.field}>
@@ -179,7 +206,7 @@ function Planner() {
           </section>
 
           <section className={styles.section}>
-            <SectionHead step="1" title="Generosity" accent="first">
+            <SectionHead eyebrow="Step 1" title="Generosity" accent="first">
               Before a single expense, decide what you’ll give. It’s figured as a percentage, so it grows
               as your church grows.
             </SectionHead>
@@ -232,7 +259,7 @@ function Planner() {
           </section>
 
           <section className={styles.section}>
-            <SectionHead step="2" title="Income">
+            <SectionHead eyebrow="Step 2" title="Income">
               Launch is money raised once to get you to launch Sunday. Monthly is what you can count on in
               a typical month after that.
             </SectionHead>
@@ -245,7 +272,7 @@ function Planner() {
           </section>
 
           <section className={styles.section}>
-            <SectionHead step="3" title="Expenses">
+            <SectionHead eyebrow="Step 3" title="Expenses">
               Put one-time purchases in Launch and recurring costs in Monthly. Leave anything that doesn’t
               apply blank.
             </SectionHead>
@@ -268,32 +295,6 @@ function Planner() {
             </div>
           </section>
 
-          <section className={`${styles.section} ${styles.noPrint}`}>
-            <SectionHead step="4" title="Best practices">
-              What the Church Multiplication Network and planters across the country have learned about
-              funding a new church.
-            </SectionHead>
-            <div className={styles.practiceGrid}>
-              {BEST_PRACTICES.map((p) => (
-                <div className={styles.practice} key={p.title}>
-                  <h3 className={styles.practiceTitle}>{p.title}</h3>
-                  <p className={styles.practiceBody}>{p.body}</p>
-                </div>
-              ))}
-            </div>
-            <p className={styles.sources}>
-              Sources:{" "}
-              {SOURCES.map((s, i) => (
-                <span key={s.url}>
-                  <a href={s.url} target="_blank" rel="noreferrer">
-                    {s.label}
-                  </a>
-                  {i < SOURCES.length - 1 ? " · " : ""}
-                </span>
-              ))}
-              . CMN figures change — confirm current terms with CMN and OCMN before you apply.
-            </p>
-          </section>
 
         </main>
 
@@ -362,19 +363,19 @@ function Planner() {
 }
 
 function SectionHead({
-  step,
+  eyebrow,
   title,
   accent,
   children,
 }: {
-  step: string;
+  eyebrow: string;
   title: string;
   accent?: string;
   children: React.ReactNode;
 }) {
   return (
     <div className={styles.sectionHead}>
-      <span className={styles.stepPill}>Step {step}</span>
+      <span className={styles.stepPill}>{eyebrow}</span>
       <h2 className={styles.h2}>
         {title} {accent ? <span className="ocmn-accent">{accent}</span> : null}
       </h2>
