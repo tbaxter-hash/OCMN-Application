@@ -55,7 +55,7 @@ export default function ReviewScreen({ steps, stepIndex, totalSteps, answers, on
           {reviewable.map((step) => {
             const idx = steps.indexOf(step);
             const missing = missingRequired(step, answers);
-            const questions = visibleQuestions(step, answers).filter((q) => q.t !== "note");
+            const questions = visibleQuestions(step, answers).filter((q) => q.t !== "note" && q.t !== "video");
             return (
               <div className={styles.card} key={step.id}>
                 <div className={styles.cardHead}>

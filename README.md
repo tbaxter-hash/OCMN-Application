@@ -44,6 +44,17 @@ launch amount and a typical month — and the planner works out year-one totals.
 - Schema, math, and checks live in `src/lib/budget.ts`; saved in `localStorage`
   under `ocmn-budget-planner-v1`.
 
+## Explainer videos
+
+Two spots play a Cloudflare Stream video via a modal (`src/components/VideoModal.tsx`,
+`VideoButton.tsx`): a "Watch: Welcome to OCMN" button on the welcome screen, and a
+"Watch the explainer" card that appears on the AG credentials step once someone answers
+that they don't hold credentials yet, explaining what the pre-application involves.
+
+Both video IDs are blank in `src/lib/videos.ts` — until they're filled in, the modal
+shows a "video coming soon" placeholder instead of a broken embed. See that file's
+comments for exactly what to paste in once the videos are uploaded to Cloudflare Stream.
+
 ## Known gaps (see `docs/design-handoff.md` for detail)
 
 A production build still needs, at minimum:

@@ -1,6 +1,7 @@
 "use client";
 
 import type { AnswerValue, Question } from "@/lib/types";
+import VideoButton from "./VideoButton";
 import styles from "./QuestionField.module.css";
 
 interface Props {
@@ -15,6 +16,23 @@ export default function QuestionField({ question, value, onChange, invalid }: Pr
     return (
       <div className={styles.field}>
         <p className={styles.note}>{question.l}</p>
+      </div>
+    );
+  }
+
+  if (question.t === "video") {
+    return (
+      <div className={styles.field}>
+        <div className={styles.videoCard}>
+          <p className={styles.videoCardTitle}>{question.l}</p>
+          {question.h ? <p className={styles.videoCardHint}>{question.h}</p> : null}
+          <VideoButton
+            label="Watch the explainer"
+            videoTitle={question.l}
+            videoId={question.cloudflareVideoId ?? ""}
+            variant="inline"
+          />
+        </div>
       </div>
     );
   }

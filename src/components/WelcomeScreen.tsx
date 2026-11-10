@@ -3,7 +3,9 @@
 import Image from "next/image";
 import Link from "next/link";
 import { PATHS } from "@/lib/questions";
+import { WELCOME_VIDEO_ID } from "@/lib/videos";
 import Sparkle from "./Sparkle";
+import VideoButton from "./VideoButton";
 import styles from "./WelcomeScreen.module.css";
 
 const LOOK_FOR = [
@@ -46,6 +48,7 @@ export default function WelcomeScreen({ firstName, savedAt, hasSaved, onSelectPa
             A guided application for planting a church, starting a dinner church, or sending
             out a plant from your church — built for the people OCMN partners with across Ohio.
           </p>
+          <VideoButton label="Watch: Welcome to OCMN (2 min)" videoTitle="Welcome to OCMN" videoId={WELCOME_VIDEO_ID} />
           <p className={styles.saveNote} id="ocmn-savenote">
             Your answers save as you go, so you can finish this in more than one sitting.
           </p>

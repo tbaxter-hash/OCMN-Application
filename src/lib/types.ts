@@ -1,7 +1,7 @@
 export type AnswerValue = string | string[] | number;
 export type Answers = Record<string, AnswerValue>;
 
-export type QuestionType = "text" | "long" | "radio" | "multi" | "scale" | "note";
+export type QuestionType = "text" | "long" | "radio" | "multi" | "scale" | "note" | "video";
 export type TextInputType = "email" | "tel" | "date" | "number";
 
 export interface Question {
@@ -15,6 +15,7 @@ export interface Question {
   ph?: string;
   low?: string;
   high?: string;
+  cloudflareVideoId?: string;
   w?: (answers: Answers) => boolean;
 }
 

@@ -15,9 +15,13 @@ function isAnswered(value: Answers[string] | undefined): boolean {
   return String(value).trim().length > 0;
 }
 
+// Types that explain or illustrate rather than collect an answer — excluded
+// from required-field and progress counting.
+const NON_ANSWER_TYPES: Question["t"][] = ["note", "video"];
+
 export function missingRequired(step: Step, answers: Answers): string[] {
   return visibleQuestions(step, answers)
-    .filter((q) => q.req && q.t !== "note" && !isAnswered(answers[q.id]))
+    .filter((q) => q.req && !NON_ANSWER_TYPES.includes(q.t) && !isAnswered(answers[q.id]))
     .map((q) => q.id);
 }
 
@@ -31,7 +35,7 @@ export function progressCounts(answers: Answers): ProgressCounts {
   let total = 0;
   for (const step of visibleSteps(answers)) {
     for (const q of visibleQuestions(step, answers)) {
-      if (q.t === "note") continue;
+      if (NON_ANSWER_TYPES.includes(q.t)) continue;
       total += 1;
       if (isAnswered(answers[q.id])) answered += 1;
     }

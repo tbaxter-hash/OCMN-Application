@@ -3,14 +3,15 @@
 //
 // Field shapes used by every question object:
 //   id   unique key; also the answer key
-//   t    'text' | 'long' | 'radio' | 'multi' | 'scale' | 'note'
-//   l    label (the question as shown)
+//   t    'text' | 'long' | 'radio' | 'multi' | 'scale' | 'note' | 'video'
+//   l    label (the question as shown; for 'video', the title shown on the card/modal)
 //   h    optional hint shown under the label
 //   req  1 = required
 //   o    options array (radio / multi)
 //   it   HTML input type for t:'text'  ('email' | 'tel' | 'date' | 'number')
 //   ph   placeholder
 //   low  / high  end labels for t:'scale' (a 1-5 rating)
+//   cloudflareVideoId  Cloudflare Stream video UID, for t:'video'
 //   w    visibility predicate: (answers) => boolean. Omit = always shown.
 //
 // Step objects: { id, group, label, eyebrow, title, intro, notice?, w?, qs: [] }
@@ -19,6 +20,7 @@
 //   w       step-level visibility predicate
 
 import type { Answers, Path, Step } from "./types";
+import { CREDENTIALING_VIDEO_ID } from "./videos";
 
 export const STORAGE_KEY = "ocmn-planter-app-v1";
 
@@ -277,6 +279,14 @@ export const STEPS: Step[] = [
         id: "credNote",
         t: "note",
         l: "Because you’re not credentialed yet, the next few sections are the AG pre-application. It covers your background and history — the same ground the credentialing team would cover with you in person. Answering \"yes\" to any of it rarely disqualifies anyone; it just means we ask a few more questions. The Ohio Ministry Network credentialing team, and only that team, reads these answers.",
+        w: needsCred,
+      },
+      {
+        id: "credVideo",
+        t: "video",
+        l: "What the credentialing pre-application looks like",
+        h: "A quick walkthrough of what's ahead before you dive into the background and history questions.",
+        cloudflareVideoId: CREDENTIALING_VIDEO_ID,
         w: needsCred,
       },
       { id: "credAck", t: "radio", l: "Ready to keep going?", req: 1, o: ["Yes, let’s continue", "I’d like someone to call me first"], w: needsCred },
