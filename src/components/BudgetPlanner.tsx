@@ -10,7 +10,6 @@ import {
   GENEROSITY_EXTRA_LINES,
   INCOME_LINES,
   SOURCES,
-  budgetCsv,
   computeTotals,
   emptyBudget,
   healthChecks,
@@ -21,6 +20,7 @@ import {
   type GivingBase,
   type Pair,
 } from "@/lib/budget";
+import { buildBudgetWorkbook } from "@/lib/budgetWorkbook";
 import Sparkle from "./Sparkle";
 import styles from "./BudgetPlanner.module.css";
 
@@ -36,6 +36,8 @@ function loadBudget(): BudgetState {
   }
   return emptyBudget();
 }
+
+const OCMN_EMAIL = "ocmn@ohioministry.net";
 
 const noopSubscribe = () => () => {};
 
@@ -74,17 +76,39 @@ function Planner() {
       lines: { ...b.lines, [id]: { ...(b.lines[id] ?? { launch: "", monthly: "" }), [field]: value } },
     }));
 
-  const downloadCsv = () => {
-    const blob = new Blob(["\uFEFF" + budgetCsv(budget, totals)], { type: "text/csv" });
+  const [submitted, setSubmitted] = useState(false);
+
+  const downloadWorkbook = async () => {
+    const blob = await buildBudgetWorkbook(budget);
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = `${(budget.churchName || "ocmn-budget").replace(/[^a-z0-9]+/gi, "-").toLowerCase()}-${budget.year}.csv`;
+    a.download = `${(budget.churchName || "ocmn-budget").replace(/[^a-z0-9]+/gi, "-").toLowerCase()}-${budget.year}.xlsx`;
     document.body.appendChild(a);
     a.click();
     a.remove();
     // Revoking in the same tick can cancel the download before it starts.
     setTimeout(() => URL.revokeObjectURL(url), 0);
+    return a.download;
+  };
+
+  // There's no backend yet, so submitting means downloading the workbook and
+  // opening an email to OCMN for the planter to attach it to.
+  const downloadAndSubmit = async () => {
+    const fileName = await downloadWorkbook();
+    const church = budget.churchName || "our church plant";
+    const subject = `Budget plan — ${church} (${budget.year})`;
+    const body = [
+      "Hello OCMN team,",
+      "",
+      `Attached is the budget plan for ${church} for ${budget.year}${budget.launchDate ? `, launching ${budget.launchDate}` : ""}.`,
+      "",
+      `(Attach the file ${fileName} from your Downloads folder before sending.)`,
+    ].join("\n");
+    setSubmitted(true);
+    window.location.assign(
+      `mailto:${OCMN_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`,
+    );
   };
 
   const reset = () => {
@@ -115,14 +139,26 @@ function Planner() {
           <button type="button" className={styles.ghostBtn} onClick={reset}>
             Start over
           </button>
-          <button type="button" className={styles.outlineBtn} onClick={downloadCsv}>
-            Download CSV
+          <button type="button" className={styles.outlineBtn} onClick={downloadAndSubmit}>
+            Download Excel &amp; submit to OCMN
           </button>
           <button type="button" className={styles.primaryBtn} onClick={() => window.print()}>
             Print plan
           </button>
         </div>
       </header>
+
+      {submitted ? (
+        <div className={`${styles.submitNote} ${styles.noPrint}`} role="status">
+          <span>
+            Your Excel budget downloaded. Attach it to the email addressed to <strong>{OCMN_EMAIL}</strong> and send it.
+            No email opened? Send the file to that address from your own email.
+          </span>
+          <button type="button" className={styles.ghostBtn} onClick={() => setSubmitted(false)}>
+            Dismiss
+          </button>
+        </div>
+      ) : null}
 
       <div className={styles.layout}>
         <main className={styles.main}>
@@ -353,9 +389,10 @@ function Planner() {
         <section className={`${styles.signatures} ${styles.printOnly}`}>
           <div className={styles.sigLine}>Pastor’s signature</div>
           <div className={styles.sigLine}>Date</div>
-          <div className={styles.sigLine}>Advisory committee member (if applicable)</div>
-          <div className={styles.sigLine}>Advisory committee member (if applicable)</div>
-          <div className={styles.sigLine}>Advisory committee member (if applicable)</div>
+          <div className={styles.sigLine}>Advisory committee member</div>
+          <div className={styles.sigLine}>Date</div>
+          <div className={styles.sigLine}>Advisory committee member</div>
+          <div className={styles.sigLine}>Date</div>
         </section>
       </div>
     </div>

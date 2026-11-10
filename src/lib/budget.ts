@@ -426,38 +426,3 @@ export const SOURCES = [
   { label: "Christianity Today — Church planting costs", url: "https://christianitytoday.com/ct/2023/januaryfebruary/church-planting-costs-startup-money-metrics.html" },
   { label: "Aplos — Church plant budgeting guide", url: "https://aplos.com/academy/church-plant-budgeting-guide" },
 ];
-
-function csvCell(value: string | number): string {
-  const s = String(value);
-  return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
-}
-
-export function budgetCsv(state: BudgetState, t: Totals): string {
-  const rows: (string | number)[][] = [];
-  const r = (n: number) => Math.round(n * 100) / 100;
-  const row = (label: string, p: Pair) => rows.push([label, r(p.launch), r(p.monthly), r(p.launch + p.monthly * 12)]);
-
-  rows.push([state.churchName || "Church Name"]);
-  rows.push([`Budget plan — ${state.year}`]);
-  rows.push([]);
-  rows.push(["", "Launch (one-time)", "Monthly", "Year one total"]);
-  rows.push(["Income"]);
-  INCOME_LINES.forEach((l) => row(l.label, t.income[l.id]));
-  row("Total income", t.incomeTotal);
-  rows.push([]);
-  rows.push(["Expense"]);
-  rows.push(["Generosity"]);
-  row(`Heart for Ohio — Ohio Ministry Network (${num(state.heartPct)}%)`, t.heart);
-  row(`AG World & U.S. Missions (${num(state.missionsPct)}%)`, t.missions);
-  GENEROSITY_EXTRA_LINES.forEach((l) => row(l.label, line(state, l.id)));
-  row("Total generosity", t.generosityTotal);
-  EXPENSE_GROUPS.forEach((g) => {
-    rows.push([g.label]);
-    g.lines.forEach((l) => row(l.label, line(state, l.id)));
-    row(`Total ${g.label.toLowerCase()}`, t.groups[g.id]);
-  });
-  rows.push([]);
-  row("Total expense", t.expenseTotal);
-  row("Net income (loss)", t.net);
-  return rows.map((cells) => cells.map(csvCell).join(",")).join("\n");
-}
