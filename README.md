@@ -40,7 +40,12 @@ launch amount and a typical month — and the planner works out year-one totals.
   reserve, payroll share, local-giving self-support, insurance, background checks,
   CMN matching-fund cap).
 - **Best practices** from CMN and national church-planting sources, with links.
-- Download as CSV, or print with pastor and advisory-committee signature lines.
+- **Download Excel & submit to OCMN** builds a formatted workbook
+  (`src/lib/budgetWorkbook.ts`, using ExcelJS): a Summary tab, one tab per year for
+  three years with live formulas (generosity rates, totals, carried-over cash balance,
+  local-giving coverage), and a Best Practices tab. It then opens an email to
+  ocmn@ohioministry.net for the planter to attach the file — there is no upload yet.
+- Print with pastor and two advisory-committee signature lines.
 - Schema, math, and checks live in `src/lib/budget.ts`; saved in `localStorage`
   under `ocmn-budget-planner-v1`.
 
