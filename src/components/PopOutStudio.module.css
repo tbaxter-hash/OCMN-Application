@@ -149,10 +149,7 @@
   align-items: center;
   justify-content: center;
   gap: 6px;
-  background: transparent;
-  border: none;
-  cursor: pointer;
-  font: inherit;
+  font-size: 15px;
   color: var(--ink-600);
   padding: 16px;
   text-align: center;
@@ -161,6 +158,14 @@
 .dropHint strong {
   font-size: 22px;
   color: var(--ink-900);
+}
+
+.dropActions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-top: 10px;
 }
 
 .dropHint small {

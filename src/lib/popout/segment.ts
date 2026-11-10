@@ -5,12 +5,26 @@
 
 import type { ImageSegmenter } from "@mediapipe/tasks-vision";
 
-const WASM_PATH = "/mediapipe/wasm";
+let wasmPath = "/mediapipe/wasm";
+let modelLoader: ((modelUrl: string) => Promise<Uint8Array>) | null = null;
 const MODEL_BASE = "https://storage.googleapis.com/mediapipe-models/image_segmenter";
 const PEOPLE_MODEL = `${MODEL_BASE}/selfie_multiclass_256x256/float32/latest/selfie_multiclass_256x256.tflite`;
 const OBJECTS_MODEL = `${MODEL_BASE}/deeplab_v3/float32/latest/deeplab_v3.tflite`;
 
 export type DetectMode = "people" | "people-objects";
+
+/**
+ * Overrides where the runtime and models come from (e.g. when the studio is hosted
+ * somewhere that can't reach this site's /mediapipe folder or Google's bucket).
+ * Call before the first photo is processed.
+ */
+export function configureSegmenter(opts: {
+  wasmPath?: string;
+  loadModel?: (modelUrl: string) => Promise<Uint8Array>;
+}) {
+  if (opts.wasmPath) wasmPath = opts.wasmPath;
+  if (opts.loadModel) modelLoader = opts.loadModel;
+}
 
 const cache = new Map<string, Promise<ImageSegmenter>>();
 
@@ -19,10 +33,13 @@ async function getSegmenter(modelUrl: string): Promise<ImageSegmenter> {
   if (!p) {
     p = (async () => {
       const { FilesetResolver, ImageSegmenter } = await import("@mediapipe/tasks-vision");
-      const fileset = await FilesetResolver.forVisionTasks(WASM_PATH);
+      const fileset = await FilesetResolver.forVisionTasks(wasmPath);
+      const modelBuffer = modelLoader ? await modelLoader(modelUrl) : null;
       const make = (delegate: "GPU" | "CPU") =>
         ImageSegmenter.createFromOptions(fileset, {
-          baseOptions: { modelAssetPath: modelUrl, delegate },
+          baseOptions: modelBuffer
+            ? { modelAssetBuffer: modelBuffer, delegate }
+            : { modelAssetPath: modelUrl, delegate },
           runningMode: "IMAGE",
           outputConfidenceMasks: true,
           outputCategoryMask: false,

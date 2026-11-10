@@ -102,17 +102,24 @@ function rebuildCutout(image: HTMLCanvasElement, mask: HTMLCanvasElement, cutout
 
 const noopSubscribe = () => () => {};
 
-export default function PopOutStudio() {
+export type PopOutStudioProps = {
+  /** Custom save (e.g. a host's download prompt). Defaults to a browser download. */
+  saveFile?: (filename: string, blob: Blob) => Promise<void>;
+  /** Offer a "Try a sample photo" button that loads this image. */
+  sampleUrl?: string;
+};
+
+export default function PopOutStudio(props: PopOutStudioProps) {
   // render only on the client: the studio needs canvas and saved settings
   const hydrated = useSyncExternalStore(
     noopSubscribe,
     () => true,
     () => false,
   );
-  return hydrated ? <Studio /> : <div className={styles.page} />;
+  return hydrated ? <Studio {...props} /> : <div className={styles.page} />;
 }
 
-function Studio() {
+function Studio({ saveFile, sampleUrl }: PopOutStudioProps) {
   const [slot, setSlot] = useState<SlotSettings>(loadSlot);
   const [photos, setPhotos] = useState<Photo[]>([]);
   const [activeId, setActiveId] = useState<string | null>(null);
@@ -201,6 +208,17 @@ function Studio() {
     },
     [detectPhoto, updatePhoto],
   );
+
+  const loadSample = async () => {
+    if (!sampleUrl) return;
+    try {
+      const res = await fetch(sampleUrl);
+      const blob = await res.blob();
+      addFiles([new File([blob], "sample.jpg", { type: blob.type || "image/jpeg" })]);
+    } catch {
+      // sample unavailable; the drop zone still works
+    }
+  };
 
   // paste from clipboard
   useEffect(() => {
@@ -446,6 +464,10 @@ function Studio() {
   const download = async (p: Photo) => {
     const blob = await exportPng(p);
     if (!blob) return;
+    if (saveFile) {
+      await saveFile(`${baseName(p.name)}-popout.png`, blob);
+      return;
+    }
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
@@ -547,11 +569,21 @@ function Studio() {
               onPointerLeave={onPointerLeave}
             />
             {!active && (
-              <button className={styles.dropHint} onClick={() => fileRef.current?.click()}>
+              <div className={styles.dropHint}>
                 <strong>Drop photos here</strong>
-                <span>or click to choose · you can also paste an image</span>
+                <span>or paste an image</span>
+                <div className={styles.dropActions}>
+                  <button className={styles.primaryBtn} onClick={() => fileRef.current?.click()}>
+                    Choose photos
+                  </button>
+                  {sampleUrl && (
+                    <button className={styles.secondaryBtn} onClick={loadSample}>
+                      Try a sample photo
+                    </button>
+                  )}
+                </div>
                 <small>Photos of people work best — full-body or waist-up, subject not cut off at the top.</small>
-              </button>
+              </div>
             )}
             {active?.status === "processing" && (
               <div className={styles.overlay}>
