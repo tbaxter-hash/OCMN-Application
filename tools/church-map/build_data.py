@@ -301,6 +301,26 @@ def main(xlsx):
             "designation": DESIGNATIONS.get(a.get("USER_Church_type")),
         })
 
+    # Area code buttons sit on the map at all zooms: put each one deep inside its area and
+    # as far as possible from any church pin so it never hides one.
+    pins = [Point(c["lon"], c["lat"]) for c in churches if c["inOhio"]]
+    for f in area_feats:
+        _, merged = area_geom[f["properties"]["key"]]
+        main_part = max(getattr(merged, "geoms", [merged]), key=lambda g: g.area)
+        edge = main_part.boundary
+        w, so, e, n = main_part.bounds
+        best, best_score = None, -1
+        steps = 40
+        for i in range(steps + 1):
+            for j in range(steps + 1):
+                pt = Point(w + (e - w) * i / steps, so + (n - so) * j / steps)
+                if not main_part.contains(pt):
+                    continue
+                score = min(edge.distance(pt), 1.6 * min(pt.distance(q) for q in pins))
+                if score > best_score:
+                    best, best_score = pt, score
+        f["properties"]["label"] = [round(best.x, 4), round(best.y, 4)]
+
     os.makedirs(OUT, exist_ok=True)
     json.dump(geo, open(os.path.join(OUT, "geo.json"), "w"), separators=(",", ":"))
     json.dump(churches, open(os.path.join(OUT, "churches.json"), "w"), separators=(",", ":"), ensure_ascii=False)

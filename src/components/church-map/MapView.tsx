@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import maplibregl, { type ExpressionSpecification, type StyleSpecification } from "maplibre-gl";
 import "maplibre-gl/dist/maplibre-gl.css";
 import {
+  AREA_ABBR,
   AREA_ORDER,
   AREA_STYLE,
   INSIGHTS,
@@ -245,13 +246,18 @@ export default function MapView(props: Props) {
           },
         });
 
-        // Area name labels (HTML so they don't depend on the base map's fonts).
+        // Always-visible area buttons with short codes (HTML so they don't depend on the base map's fonts).
         labelMarkers.current = geo.areas.features.map((f) => {
           const b = document.createElement("button");
           b.className = styles.areaLabel;
           b.type = "button";
           b.style.setProperty("--c", AREA_STYLE[f.properties.key].ink);
-          b.textContent = f.properties.name;
+          b.style.setProperty("--fill", AREA_STYLE[f.properties.key].color);
+          b.textContent = AREA_ABBR[f.properties.key];
+          b.dataset.name = f.properties.name;
+          b.dataset.region = String(f.properties.region);
+          b.title = `${f.properties.name} — Region ${f.properties.region}`;
+          b.setAttribute("aria-label", `Select ${f.properties.name} area`);
           b.addEventListener("click", (e) => {
             e.stopPropagation();
             propsRef.current.onSelectArea(f.properties.key);
@@ -327,11 +333,10 @@ export default function MapView(props: Props) {
           const a = m.queryRenderedFeatures(e.point, { layers: ["area-fill"] })[0];
           if (a) propsRef.current.onSelectArea(a.properties.key as AreaKey);
         });
-        m.on("zoom", () => updateLabels(m));
         readyRef.current = true;
         setReady(true);
         applyAll(m);
-        updateLabels(m);
+        updateLabels();
       });
     });
 
@@ -345,14 +350,14 @@ export default function MapView(props: Props) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  function updateLabels(m: maplibregl.Map) {
-    const z = m.getZoom();
-    const { selectedArea } = propsRef.current;
+  function updateLabels() {
+    const { selectedArea, selectedRegion } = propsRef.current;
     for (const { key, marker } of labelMarkers.current) {
       const elx = marker.getElement();
-      const show = z < 8.4 || (key === selectedArea && z < 9.5);
-      elx.style.opacity = show ? (selectedArea && key !== selectedArea ? "0.45" : "1") : "0";
-      elx.style.pointerEvents = show ? "auto" : "none";
+      const region = Number(elx.dataset.region);
+      const on = key === selectedArea || (!selectedArea && selectedRegion != null && region === selectedRegion);
+      elx.classList.toggle(styles.areaLabelOn, on);
+      elx.classList.toggle(styles.areaLabelDim, (selectedArea != null || selectedRegion != null) && !on);
     }
   }
 
@@ -391,7 +396,7 @@ export default function MapView(props: Props) {
       ] as unknown as ExpressionSpecification);
       m.setPaintProperty("insight-fill", "fill-opacity", ["case", ["==", ["get", field], null], noChurch ? 0.9 : 0.4, 0.85]);
     }
-    updateLabels(m);
+    updateLabels();
   }
 
   // ---- react to prop changes -----------------------------------------------------------

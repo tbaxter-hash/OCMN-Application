@@ -3,6 +3,7 @@
 import dynamic from "next/dynamic";
 import { useCallback, useDeferredValue, useEffect, useMemo, useState } from "react";
 import {
+  AREA_ABBR,
   AREA_ORDER,
   AREA_STYLE,
   DESIGNATIONS,
@@ -229,11 +230,10 @@ function Explorer({ geo, churches }: Data) {
         )}
         <header className={styles.brand}>
           <button className={styles.brandHome} onClick={goHome} aria-label="Show all of Ohio">
-            <OhioMark />
-            <div>
-              <div className={styles.eyebrow}>Ohio Ministry Network</div>
-              <h1 className={styles.title}>Church Map</h1>
-            </div>
+            {/* eslint-disable-next-line @next/next/no-img-element -- static logo, also inlined in the single-file build */}
+            <img className={styles.logo} src="/church-map/omn-logo.png" alt="Ohio Ministry Network" width={640} height={247} />
+            <span className={styles.brandRule} aria-hidden="true" />
+            <h1 className={styles.title}>Church Map</h1>
           </button>
           <div className={styles.kpis}>
             <Kpi n={fmt(churches.length)} l="churches" />
@@ -378,16 +378,11 @@ function Kpi({ n, l }: { n: string; l: string }) {
   );
 }
 
-function OhioMark() {
+function AbbrBadge({ k }: { k: AreaKey }) {
   return (
-    <svg className={styles.mark} viewBox="0 0 40 40" aria-hidden="true">
-      <rect width="40" height="40" rx="11" fill="var(--blue-700)" />
-      <path
-        d="M10 9.5l8.3-.4 2.7 1.3 3.6-.6 5.3-3.3.4 13.6-1 2.6-1.8 3.4-1.4 3.2-1.8.6-1.6 2.5-2.1 1.2-2.6-1.2-3.4.6-2.2-1.5-1.1-1.5L10 30z"
-        fill="#fff"
-      />
-      <circle cx="21.5" cy="20" r="2.4" fill="var(--ember-500)" />
-    </svg>
+    <span className={styles.abbr} style={{ background: AREA_STYLE[k].ink }}>
+      {AREA_ABBR[k]}
+    </span>
   );
 }
 
@@ -436,7 +431,7 @@ function RegionList({
             </button>
             {keys.map((k) => (
               <button key={k} className={styles.areaRow} onClick={() => onArea(k)} style={{ ["--c" as string]: AREA_STYLE[k].ink }}>
-                <Swatch k={k} />
+                <AbbrBadge k={k} />
                 <span className={styles.areaText}>
                   <b>{areaByKey[k].name}</b>
                   <small>{areaByKey[k].presbyter} · Area Presbyter</small>

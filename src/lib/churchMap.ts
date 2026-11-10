@@ -96,6 +96,24 @@ export const AREA_STYLE: Record<AreaKey, { color: string; ink: string }> = {
   SOUTHEAST: { color: "#73586f", ink: "#4f3a4c" },
 };
 
+/** Short codes shown on the always-visible map labels. */
+export const AREA_ABBR: Record<AreaKey, string> = {
+  NORTHWEST: "NW",
+  "WEST CENTRAL": "WC",
+  "NORTH CENTRAL": "NC",
+  "GREATER CLEVELAND": "CLE",
+  "GREATER AKRON": "AKR",
+  "EAST CENTRAL": "EC",
+  NORTHEAST: "NE",
+  "YOUNGSTOWN-WARREN": "YW",
+  "GREATER DAYTON": "DAY",
+  "GREATER CINCINNATI": "CIN",
+  "GREATER COLUMBUS WEST": "CW",
+  "GREATER COLUMBUS EAST": "CE",
+  "SOUTH CENTRAL": "SC",
+  SOUTHEAST: "SE",
+};
+
 export const AREA_ORDER: AreaKey[] = [
   "NORTHWEST",
   "WEST CENTRAL",
