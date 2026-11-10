@@ -82,3 +82,28 @@ A production build still needs, at minimum:
 - `npm run build` — production build
 - `npm run start` — run the production build
 - `npm run lint` — ESLint
+
+## Pop-out photo studio (`/pop-out`)
+
+Turns photos into "3D" pop-out images: the photo sits in a fixed rounded frame and the
+person steps out of it (head above the top edge, arms past the sides, feet below).
+Built for the image card at the bottom of the Church Hub sidebar, so every image made
+with the same settings drops into the same spot.
+
+- **Drop, paste or choose photos** (several at once). Each is processed in the browser —
+  nothing is uploaded. Person detection uses Google MediaPipe segmentation models
+  (`src/lib/popout/segment.ts`); edges are refined with a guided filter. The MediaPipe
+  WebAssembly runtime is copied from `node_modules` to `public/mediapipe/` by
+  `tools/copy-mediapipe-wasm.mjs` before `dev`/`build`; the models (~16 MB, plus ~3 MB for
+  "People + objects") download from Google's model bucket on first use.
+- **Image area** (frame size, corner rounding, room above/below/sides) is shared by all
+  photos and saved in `localStorage`. Presets: Church Hub sidebar card (default), wide
+  banner, landscape card.
+- **Per photo**: drag to move the photo behind the fixed frame, zoom, choose which edges
+  the person may break through, Erase/Restore brushes (with undo) to clean up the
+  cut-out, and "People + objects" to also pick up pets, furniture and plants.
+- **Download PNG** (transparent background by default) at frame size plus overhang,
+  e.g. 1312 × 1112 for the sidebar card. "Code for your web page" gives the HTML that
+  positions the PNG so its frame fills the designated area. "On your page" shows a live
+  mock of the sidebar in light and dark.
+- Rendering lives in `src/lib/popout/render.ts`; the UI in `src/components/PopOutStudio.tsx`.

@@ -39,3 +39,6 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# pop-out tool: MediaPipe wasm is copied here from node_modules at dev/build
+/public/mediapipe/
