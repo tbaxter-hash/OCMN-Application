@@ -144,7 +144,7 @@ export default function MapView(props: Props) {
             type: "FeatureCollection",
             features: churches.map((c) => ({
               type: "Feature",
-              properties: { id: c.id, area: c.area, name: c.name, city: c.city, att: c.attendance ?? 0 },
+              properties: { id: c.id, area: c.area, name: c.name, city: c.city, desig: c.designation ?? "" },
               geometry: { type: "Point", coordinates: [c.lon, c.lat] },
             })),
           },
@@ -286,7 +286,11 @@ export default function MapView(props: Props) {
             const extra = near.length > 1 ? `<div class="${styles.tipMore}">+${near.length - 1} more here — zoom in</div>` : "";
             tip
               .setLngLat((pin.geometry as GeoJSON.Point).coordinates as [number, number])
-              .setHTML(`<strong>${escapeHtml(String(pin.properties.name))}</strong><span>${escapeHtml(String(pin.properties.city))}</span>${extra}`)
+              .setHTML(
+                `<strong>${escapeHtml(String(pin.properties.name))}</strong><span>${escapeHtml(String(pin.properties.city))}${
+                  pin.properties.desig ? ` · ${escapeHtml(String(pin.properties.desig))}` : ""
+                }</span>${extra}`,
+              )
               .addTo(m);
             return;
           }

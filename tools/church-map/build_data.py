@@ -14,7 +14,9 @@ Sources (all fetched live; needs network access to these hosts):
     Physical (location) address wins when present; otherwise the first address block.
   * U.S. Census Geocoder (geocoding.geo.census.gov) — batch geocode of every address.
   * CMN Insight Map layers used by the OMN StoryMap (services5.arcgis.com):
-      - AGUSAChurches2024_Full: Esri-geocoded point + 2024 ACMR numbers for each church
+      - AGUSAChurches2024_Full: Esri-geocoded point and church type code for each church.
+        Only the pin location and the designation (G/D/P) are used; everything shown on a
+        church card otherwise comes from the spreadsheet.
       - USA_County_Summary_24_CT_Correct: county population / churches / unclaimed stats
   * Census cartographic boundary file, counties 1:500k (www2.census.gov) — the map outline.
   * OMN area map (ohioministry.net/presbyters): which counties make up each of the 14 areas
@@ -96,6 +98,9 @@ COLUMBUS_SPLIT = [
     (-83.155, 39.855), (-83.194, 39.829), (-83.27, 39.78),
 ]
 SPLIT_COUNTIES = ["Delaware", "Franklin"]
+
+# AG church status code (CMN Insight Map "Church type") -> OMN designation.
+DESIGNATIONS = {"G": "General Council", "D": "Network Affiliated", "P": "Church Plant"}
 
 
 def fetch(url, data=None, name=None):
@@ -292,14 +297,8 @@ def main(xlsx):
             "lat": round(lat, 6), "lon": round(lon, 6), "geocode": src,
             "county": county, "inOhio": county is not None,
             "pastor": x["pastor"] or None,
-            "phone": str(a.get("USER_Church_phone") or "") or None,
-            "status": {"G": "General Council", "D": "District", "P": "Parent"}.get(a.get("USER_Church_type")),
-            "attendance": a.get("USER_Sunday_AM_attendance") or None,
-            "adherents": a.get("USER_Total_adherents") or None,
-            "members": a.get("USER_Total_members") or None,
-            "conversions": a.get("USER_Conversions") or None,
-            "waterBaptisms": a.get("USER_Water_baptisms") or None,
-            "spiritBaptisms": a.get("USER_Spirit_baptisms") or None,
+            # Only the designation is taken from ArcGIS (until the spreadsheet has its own column).
+            "designation": DESIGNATIONS.get(a.get("USER_Church_type")),
         })
 
     os.makedirs(OUT, exist_ok=True)

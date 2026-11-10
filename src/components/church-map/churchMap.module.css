@@ -1199,3 +1199,74 @@
     padding: 2px 7px;
   }
 }
+
+/* ---------------- designations ---------------- */
+
+.desigFilter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px;
+  margin: 2px 16px 4px;
+}
+
+.desigFilter button {
+  --dc: var(--ink-800);
+  --dbg: var(--ink-100);
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 10px;
+  border-radius: 999px;
+  border: 1px solid var(--ink-200);
+  background: #fff;
+  font: inherit;
+  font-size: 12.5px;
+  font-weight: 650;
+  color: var(--ink-600);
+  cursor: pointer;
+  transition: background 0.12s, border-color 0.12s, color 0.12s;
+}
+
+.desigFilter button span {
+  font-size: 11px;
+  font-weight: 800;
+  color: var(--ink-400);
+  font-variant-numeric: tabular-nums;
+}
+
+.desigFilter button:hover {
+  border-color: var(--dc);
+  color: var(--dc);
+}
+
+.desigFilter .dfOn {
+  background: var(--dbg);
+  border-color: var(--dc);
+  color: var(--dc);
+}
+
+.desigFilter .dfOn span {
+  color: var(--dc);
+}
+
+.dtag {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px 9px;
+  border-radius: 999px;
+  font-size: 12px;
+  font-weight: 750;
+  letter-spacing: 0.01em;
+  white-space: nowrap;
+}
+
+.dtagCompact {
+  padding: 2px 7px;
+  font-size: 10.5px;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+}
+
+.cardTag {
+  margin-top: 8px;
+}

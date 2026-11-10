@@ -76,9 +76,12 @@ A production build still needs, at minimum:
 ## Church map (`/map`)
 
 An interactive map of every Ohio Ministry Network church for presbyters: browse by the
-7 regions and 14 areas (with area and executive presbyters), search by church, city,
-pastor, county or ZIP, and open any pin for address, directions, phone, pastor, 2024
-ministry-report numbers, county context and the nearest OMN churches. The map can also
+7 regions and 14 areas (with area and executive presbyters), filter by designation
+(General Council / Network Affiliated / Church Plant), search by church, city, pastor,
+county or ZIP, and open any pin for address, directions, designation, pastor, presbyters,
+county context and the nearest OMN churches. Church name, address and pastor come only
+from the OMN spreadsheet; the designation comes from the CMN Insight Map church type
+(G/D/P) until the spreadsheet has its own column. The map can also
 be coloured by county insight (people per AG church, unclaimed %). Links are shareable
 (`/map?area=greater%20dayton&church=135`).
 

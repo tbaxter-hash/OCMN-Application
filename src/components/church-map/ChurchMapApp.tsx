@@ -5,11 +5,11 @@ import { useCallback, useDeferredValue, useEffect, useMemo, useState } from "rea
 import {
   AREA_ORDER,
   AREA_STYLE,
+  DESIGNATIONS,
   INSIGHTS,
   directionsUrl,
   fmt,
   formatPastor,
-  formatPhone,
   milesBetween,
   searchText,
   titleCase,
@@ -17,6 +17,7 @@ import {
   type AreaProps,
   type Church,
   type CountyProps,
+  type Designation,
   type GeoData,
   type InsightMode,
 } from "@/lib/churchMap";
@@ -69,6 +70,7 @@ function Explorer({ geo, churches }: Data) {
   const [hovered, setHovered] = useState<number | null>(null);
   const [resetToken, setResetToken] = useState(0);
   const [sheetOpen, setSheetOpen] = useState(true);
+  const [desig, setDesig] = useState<Designation | null>(null);
   const q = useDeferredValue(query.trim().toLowerCase());
 
   const areaByKey = useMemo(
@@ -89,7 +91,9 @@ function Explorer({ geo, churches }: Data) {
     const a = p.get("area")?.toUpperCase() as AreaKey | undefined;
     const r = Number(p.get("region"));
     const c = Number(p.get("church"));
+    const d = DESIGNATIONS.find((x) => x.key.toLowerCase() === p.get("type")?.toLowerCase());
     /* eslint-disable react-hooks/set-state-in-effect -- one-time read of the shared link */
+    if (d) setDesig(d.key);
     if (a && AREA_ORDER.includes(a)) {
       setArea(a);
       setRegion(areaByKey[a].region);
@@ -105,9 +109,10 @@ function Explorer({ geo, churches }: Data) {
     if (area) p.set("area", area.toLowerCase());
     else if (region) p.set("region", String(region));
     if (churchId) p.set("church", String(churchId));
+    if (desig) p.set("type", desig.toLowerCase());
     const s = p.toString();
     window.history.replaceState(null, "", s ? `?${s}` : window.location.pathname);
-  }, [area, region, churchId]);
+  }, [area, region, churchId, desig]);
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -121,18 +126,27 @@ function Explorer({ geo, churches }: Data) {
   }, [churchId, area, region]);
 
   // ---- derived -------------------------------------------------------------------------
+  const passes = useCallback((c: Church) => !desig || c.designation === desig, [desig]);
   const scoped = useMemo(
-    () => churches.filter((c) => (area ? c.area === area : region ? areaByKey[c.area].region === region : true)),
-    [churches, area, region, areaByKey],
+    () =>
+      churches.filter((c) => passes(c) && (area ? c.area === area : region ? areaByKey[c.area].region === region : true)),
+    [churches, area, region, areaByKey, passes],
   );
-  const matches = useMemo(() => (q ? index.filter(([, t]) => t.includes(q)).map(([c]) => c) : null), [index, q]);
+  const matches = useMemo(
+    () => (q ? index.filter(([c, t]) => passes(c) && t.includes(q)).map(([c]) => c) : null),
+    [index, q, passes],
+  );
   const visibleIds = useMemo(() => new Set((matches ?? scoped).map((c) => c.id)), [matches, scoped]);
   const countsByArea = useMemo(() => {
     const m = {} as Record<AreaKey, number>;
-    for (const c of churches) m[c.area] = (m[c.area] ?? 0) + 1;
+    for (const c of churches) if (passes(c)) m[c.area] = (m[c.area] ?? 0) + 1;
+    return m;
+  }, [churches, passes]);
+  const desigCounts = useMemo(() => {
+    const m = {} as Record<Designation, number>;
+    for (const c of churches) if (c.designation) m[c.designation] = (m[c.designation] ?? 0) + 1;
     return m;
   }, [churches]);
-  const totalAttendance = useMemo(() => churches.reduce((s, c) => s + (c.attendance ?? 0), 0), [churches]);
 
   const selectArea = useCallback(
     (k: AreaKey) => {
@@ -225,7 +239,7 @@ function Explorer({ geo, churches }: Data) {
             <Kpi n={fmt(churches.length)} l="churches" />
             <Kpi n="14" l="areas" />
             <Kpi n="7" l="regions" />
-            <Kpi n={fmt(totalAttendance)} l="Sunday AM" />
+            <Kpi n={fmt(desigCounts["Church Plant"] ?? 0)} l="church plants" />
           </div>
         </header>
 
@@ -245,6 +259,24 @@ function Explorer({ geo, churches }: Data) {
               ×
             </button>
           )}
+        </div>
+
+        <div className={styles.desigFilter} role="radiogroup" aria-label="Filter by designation">
+          <button role="radio" aria-checked={!desig} className={!desig ? styles.dfOn : ""} onClick={() => setDesig(null)}>
+            All
+          </button>
+          {DESIGNATIONS.map((d) => (
+            <button
+              key={d.key}
+              role="radio"
+              aria-checked={desig === d.key}
+              className={desig === d.key ? styles.dfOn : ""}
+              style={{ ["--dc" as string]: d.color, ["--dbg" as string]: d.bg }}
+              onClick={() => setDesig(desig === d.key ? null : d.key)}
+            >
+              {d.key} <span>{desigCounts[d.key] ?? 0}</span>
+            </button>
+          ))}
         </div>
 
         <nav className={styles.crumbs} aria-label="Breadcrumb">
@@ -290,6 +322,7 @@ function Explorer({ geo, churches }: Data) {
               area={areaByKey[area]}
               exec={execByRegion[areaByKey[area].region]}
               list={scoped}
+              all={churches.filter((c) => c.area === area)}
               countyByName={countyByName}
               onPick={selectChurch}
               onHover={setHovered}
@@ -313,7 +346,8 @@ function Explorer({ geo, churches }: Data) {
           )}
         </div>
         <footer className={styles.foot}>
-          Areas &amp; presbyters: ohioministry.net · Church statistics: 2024 AG ACMR via the CMN Insight Map · County outlines: U.S. Census
+          Churches, addresses &amp; pastors: OMN spreadsheet · Designations &amp; county insights: CMN Insight Map · Areas &amp;
+          presbyters: ohioministry.net · County outlines: U.S. Census
         </footer>
       </aside>
 
@@ -426,20 +460,15 @@ function RegionList({
   );
 }
 
-function aggregate(list: Church[]) {
-  const sum = (f: (c: Church) => number | null) => list.reduce((s, c) => s + (f(c) ?? 0), 0);
-  return {
-    attendance: sum((c) => c.attendance),
-    conversions: sum((c) => c.conversions),
-    water: sum((c) => c.waterBaptisms),
-    spirit: sum((c) => c.spiritBaptisms),
-  };
+function countBy(list: Church[], d: Designation) {
+  return list.filter((c) => c.designation === d).length;
 }
 
 function AreaView({
   area,
   exec,
   list,
+  all,
   countyByName,
   onPick,
   onHover,
@@ -448,20 +477,21 @@ function AreaView({
   area: AreaProps;
   exec: string;
   list: Church[];
+  all: Church[];
   countyByName: Record<string, CountyProps>;
   onPick: (id: number) => void;
   onHover: (id: number | null) => void;
   selectedId: number | null;
 }) {
-  const [sort, setSort] = useState<"city" | "name" | "attendance">("city");
-  const agg = aggregate(list);
+  const [sort, setSort] = useState<"city" | "name" | "designation">("city");
+  const rank = (c: Church) => DESIGNATIONS.findIndex((d) => d.key === c.designation);
   const shared = area.counties.filter((n) => countyByName[n].areas.length > 1);
   const whole = area.counties.filter((n) => countyByName[n].areas.length === 1);
   const pop = whole.reduce((s, n) => s + (countyByName[n].population ?? 0), 0);
   const empty = whole.filter((n) => !countyByName[n].agChurches);
   const sorted = [...list].sort((a, b) =>
-    sort === "attendance"
-      ? (b.attendance ?? 0) - (a.attendance ?? 0)
+    sort === "designation"
+      ? rank(a) - rank(b) || a.name.localeCompare(b.name)
       : sort === "name"
         ? a.name.localeCompare(b.name)
         : a.cityArea.localeCompare(b.cityArea) || a.name.localeCompare(b.name),
@@ -480,10 +510,10 @@ function AreaView({
       </div>
 
       <div className={styles.statGrid}>
-        <Stat n={fmt(list.length)} l="Churches" />
-        <Stat n={fmt(agg.attendance)} l="Sunday AM" />
-        <Stat n={fmt(agg.conversions)} l="Conversions" />
-        <Stat n={fmt(agg.water)} l="Water baptisms" />
+        <Stat n={fmt(all.length)} l="Churches" />
+        <Stat n={fmt(countBy(all, "General Council"))} l="General Council" />
+        <Stat n={fmt(countBy(all, "Network Affiliated"))} l="Network Affiliated" />
+        <Stat n={fmt(countBy(all, "Church Plant"))} l="Church plants" />
       </div>
 
       <div className={styles.block}>
@@ -515,13 +545,13 @@ function AreaView({
       </div>
 
       <div className={styles.listHead}>
-        <h3>Churches</h3>
+        <h3>{list.length === all.length ? "Churches" : `Churches · ${list.length} of ${all.length} shown`}</h3>
         <label className={styles.sort}>
           Sort
           <select value={sort} onChange={(e) => setSort(e.target.value as typeof sort)}>
             <option value="city">By city</option>
             <option value="name">By name</option>
-            <option value="attendance">By attendance</option>
+            <option value="designation">By designation</option>
           </select>
         </label>
       </div>
@@ -602,11 +632,7 @@ function ChurchList({
                   {c.pastor ? ` · ${formatPastor(c.pastor)}` : ""}
                 </small>
               </span>
-              {c.attendance ? (
-                <span className={styles.att} title="Sunday morning attendance (2024)">
-                  {fmt(c.attendance)}
-                </span>
-              ) : null}
+              <DesigTag d={c.designation} compact />
             </button>
           </li>
         );
@@ -670,9 +696,7 @@ function ChurchCard({
     [c, churches],
   );
   const [copied, setCopied] = useState(false);
-  const phone = formatPhone(c.phone);
   const pastor = formatPastor(c.pastor);
-  const hasStats = c.attendance || c.conversions || c.waterBaptisms || c.spiritBaptisms || c.adherents;
 
   return (
     <article className={styles.card} style={{ ["--c" as string]: s.color, ["--ink" as string]: s.ink }} aria-label={c.name}>
@@ -689,7 +713,9 @@ function ChurchCard({
         <div className={styles.cardSub}>
           {titleCase(c.cityArea)}
           {c.county ? ` · ${c.county} County` : ""}
-          {c.status ? ` · ${c.status}` : ""}
+        </div>
+        <div className={styles.cardTag}>
+          <DesigTag d={c.designation} />
         </div>
 
         <div className={styles.actions}>
@@ -700,20 +726,6 @@ function ChurchCard({
             </svg>
             Directions
           </a>
-          {phone && (
-            <a className={styles.act} href={`tel:${c.phone}`}>
-              <svg viewBox="0 0 20 20" aria-hidden="true">
-                <path
-                  d="M6.2 2.8l2 3.6-1.5 1.6c.9 1.9 2.4 3.4 4.3 4.3l1.6-1.5 3.6 2-.8 3c-6.6.4-12-5-11.6-11.6z"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="1.6"
-                  strokeLinejoin="round"
-                />
-              </svg>
-              Call
-            </a>
-          )}
           <button
             className={styles.act}
             onClick={() => {
@@ -738,14 +750,8 @@ function ChurchCard({
             <br />
             {c.city}, {c.state} {c.zip}
           </dd>
-          {phone && (
-            <>
-              <dt>Phone</dt>
-              <dd>
-                <a href={`tel:${c.phone}`}>{phone}</a>
-              </dd>
-            </>
-          )}
+          <dt>Designation</dt>
+          <dd>{c.designation ?? <span className={styles.muted}>Not on file</span>}</dd>
           <dt>Pastor</dt>
           <dd>{pastor ?? <span className={styles.muted}>Not listed</span>}</dd>
           <dt>Presbyters</dt>
@@ -755,20 +761,6 @@ function ChurchCard({
             {exec} <span className={styles.muted}>(Region {area.region})</span>
           </dd>
         </dl>
-
-        {hasStats ? (
-          <div className={styles.block}>
-            <h3>2024 ministry report</h3>
-            <div className={styles.statGrid}>
-              <Stat n={fmt(c.attendance)} l="Sunday AM" />
-              <Stat n={fmt(c.adherents)} l="Adherents" />
-              <Stat n={fmt(c.conversions)} l="Conversions" />
-              <Stat n={fmt(c.waterBaptisms)} l="Water baptisms" />
-            </div>
-          </div>
-        ) : (
-          <p className={styles.fine}>No 2024 ministry report numbers on file for this church.</p>
-        )}
 
         {county && (
           <div className={styles.block}>
@@ -808,11 +800,25 @@ function ChurchCard({
           </ul>
         </div>
         <p className={styles.fineSmall}>
-          Pin placed from the {c.geocode === "esri" ? "CMN Insight Map (Esri) geocode" : "U.S. Census geocoder"} of the church’s physical
-          address.
+          Name, address and pastor from the OMN churches spreadsheet. Designation from the CMN Insight Map. Pin placed from the{" "}
+          {c.geocode === "esri" ? "CMN Insight Map (Esri)" : "U.S. Census"} geocode of the spreadsheet address.
         </p>
       </div>
     </article>
+  );
+}
+
+function DesigTag({ d, compact }: { d: Designation | null; compact?: boolean }) {
+  const meta = DESIGNATIONS.find((x) => x.key === d);
+  if (!meta) return null;
+  return (
+    <span
+      className={`${styles.dtag} ${compact ? styles.dtagCompact : ""}`}
+      style={{ color: meta.color, background: meta.bg }}
+      title={meta.key}
+    >
+      {compact ? meta.short : meta.key}
+    </span>
   );
 }
 

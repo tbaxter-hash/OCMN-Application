@@ -16,15 +16,16 @@ export type Church = {
   county: string | null;
   inOhio: boolean;
   pastor: string | null;
-  phone: string | null;
-  status: string | null;
-  attendance: number | null;
-  adherents: number | null;
-  members: number | null;
-  conversions: number | null;
-  waterBaptisms: number | null;
-  spiritBaptisms: number | null;
+  designation: Designation | null;
 };
+
+export type Designation = "General Council" | "Network Affiliated" | "Church Plant";
+
+export const DESIGNATIONS: { key: Designation; short: string; color: string; bg: string }[] = [
+  { key: "General Council", short: "GC", color: "#163a86", bg: "#e6edfb" },
+  { key: "Network Affiliated", short: "NA", color: "#6b4c0b", bg: "#f8ecd2" },
+  { key: "Church Plant", short: "CP", color: "#1f6b3e", bg: "#dcf2e4" },
+];
 
 export type AreaKey =
   | "NORTHWEST"
@@ -150,13 +151,6 @@ export function titleCase(s: string) {
     .replace(/\bAnd\b/g, "and");
 }
 
-export function formatPhone(p: string | null) {
-  if (!p) return null;
-  const d = p.replace(/\D/g, "");
-  if (d.length !== 10) return p;
-  return `(${d.slice(0, 3)}) ${d.slice(3, 6)}-${d.slice(6)}`;
-}
-
 /** "Rev Todd E Troyer" -> "Rev. Todd E. Troyer" */
 export function formatPastor(p: string | null) {
   if (!p) return null;
@@ -180,5 +174,5 @@ export function directionsUrl(c: Church) {
 }
 
 export function searchText(c: Church) {
-  return `${c.name} ${c.city} ${c.cityArea} ${c.pastor ?? ""} ${c.county ?? ""} ${c.zip}`.toLowerCase();
+  return `${c.name} ${c.city} ${c.cityArea} ${c.pastor ?? ""} ${c.county ?? ""} ${c.zip} ${c.designation ?? ""}`.toLowerCase();
 }
