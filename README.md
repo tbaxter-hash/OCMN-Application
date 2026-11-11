@@ -86,22 +86,23 @@ A production build still needs, at minimum:
 ## Pop-out photo studio (`/pop-out`)
 
 Turns photos into "3D" pop-out images: the photo sits in a fixed rounded frame and the
-person steps out of it (head above the top edge, arms past the sides, feet below).
-Built for the image card at the bottom of the Church Hub sidebar, so every image made
-with the same settings drops into the same spot.
+subject steps out of it (head above the top edge, arms past the sides, feet below).
+Works for people and objects alike. Built for the image card at the bottom of the
+Church Hub sidebar, so every image made with the same settings drops into the same spot.
 
 - **Drop, paste or choose photos** (several at once). Each is processed in the browser —
-  nothing is uploaded. Person detection uses Google MediaPipe segmentation models
-  (`src/lib/popout/segment.ts`); edges are refined with a guided filter. The MediaPipe
-  WebAssembly runtime is copied from `node_modules` to `public/mediapipe/` by
-  `tools/copy-mediapipe-wasm.mjs` before `dev`/`build`; the models (~16 MB, plus ~3 MB for
-  "People + objects") download from Google's model bucket on first use.
+  nothing is uploaded. The subject is found by U²-Net-p (Qin et al., Apache-2.0), a
+  4.5 MB salient-object model, run on TensorFlow.js (WebGL, with a CPU fallback) by a
+  small interpreter in `src/lib/popout/u2net.ts`; edges are then refined with a guided
+  filter (`src/lib/popout/segment.ts`). The model lives in `public/popout/`
+  (`u2netp.json` + `u2netp.bin`), produced from the ONNX release by
+  `tools/export-u2netp.py`.
 - **Image area** (frame size, corner rounding, room above/below/sides) is shared by all
   photos and saved in `localStorage`. Presets: Church Hub sidebar card (default), wide
   banner, landscape card.
 - **Per photo**: drag to move the photo behind the fixed frame, zoom, choose which edges
-  the person may break through, Erase/Restore brushes (with undo) to clean up the
-  cut-out, and "People + objects" to also pick up pets, furniture and plants.
+  the subject may break through, Erase/Restore brushes (with undo) to clean up the
+  cut-out, "Redo cut-out" to start the cut-out over.
 - **Download PNG** (transparent background by default) at frame size plus overhang,
   e.g. 1312 × 1112 for the sidebar card. "Code for your web page" gives the HTML that
   positions the PNG so its frame fills the designated area. "On your page" shows a live

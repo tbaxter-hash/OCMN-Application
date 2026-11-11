@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useCallback, useEffect, useLayoutEffect, useRef, useState, useSyncExternalStore } from "react";
-import { maskBounds, segmentSubject, type DetectMode } from "@/lib/popout/segment";
+import { maskBounds, segmentSubject } from "@/lib/popout/segment";
 import {
   DEFAULT_SLOT,
   SLOT_PRESETS,
@@ -35,7 +35,6 @@ type Photo = {
   assets?: PhotoAssets;
   mask?: HTMLCanvasElement;
   view?: PhotoView;
-  detect: DetectMode;
   undo: ImageData[];
 };
 
@@ -166,14 +165,14 @@ function Studio({ saveFile, sampleUrl }: PopOutStudioProps) {
 
   // ---- processing ----
   const detectPhoto = useCallback(
-    async (id: string, image: HTMLCanvasElement, detect: DetectMode, keepView: boolean) => {
-      const mask = await segmentSubject(image, detect);
+    async (id: string, image: HTMLCanvasElement, keepView: boolean) => {
+      const mask = await segmentSubject(image);
       const cutout = document.createElement("canvas");
       rebuildCutout(image, mask, cutout);
       const assets: PhotoAssets = { image, cutout, subject: maskBounds(mask) };
       const prev = photosRef.current.find((p) => p.id === id)?.view;
       const view = keepView && prev ? prev : autoView(slotRef.current, assets);
-      updatePhoto(id, { status: "ready", assets, mask, view, detect, undo: [], error: undefined });
+      updatePhoto(id, { status: "ready", assets, mask, view, undo: [], error: undefined });
     },
     [updatePhoto],
   );
@@ -186,7 +185,6 @@ function Studio({ saveFile, sampleUrl }: PopOutStudioProps) {
         id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
         name: f.name,
         status: "processing",
-        detect: "people",
         undo: [],
       }));
       setPhotos((ps) => [...ps, ...items]);
@@ -196,7 +194,7 @@ function Studio({ saveFile, sampleUrl }: PopOutStudioProps) {
           try {
             const image = await fileToCanvas(list[i]);
             updatePhoto(item.id, { thumb: makeThumb(image) });
-            await detectPhoto(item.id, image, "people", false);
+            await detectPhoto(item.id, image, false);
           } catch (e) {
             updatePhoto(item.id, {
               status: "error",
@@ -432,13 +430,14 @@ function Studio({ saveFile, sampleUrl }: PopOutStudioProps) {
     });
   };
 
-  const redetect = (mode: DetectMode) => {
+  /** Throws away brush edits and finds the subject again. */
+  const redetect = () => {
     if (!active?.assets) return;
     const { id } = active;
     const image = active.assets.image;
-    updatePhoto(id, { status: "processing", detect: mode });
+    updatePhoto(id, { status: "processing" });
     queue.current = queue.current.then(() =>
-      detectPhoto(id, image, mode, true).catch((e) =>
+      detectPhoto(id, image, true).catch((e) =>
         updatePhoto(id, { status: "error", error: e instanceof Error ? e.message : String(e) }),
       ),
     );
@@ -582,14 +581,14 @@ function Studio({ saveFile, sampleUrl }: PopOutStudioProps) {
                     </button>
                   )}
                 </div>
-                <small>Photos of people work best — full-body or waist-up, subject not cut off at the top.</small>
+                <small>Works with people and objects. Best when the subject stands out from the background and isn&rsquo;t cut off at the top.</small>
               </div>
             )}
             {active?.status === "processing" && (
               <div className={styles.overlay}>
                 <div className={styles.spinner} />
-                <strong>Finding the person…</strong>
-                <span>The first photo also downloads the detection model (~16 MB). Everything stays on this computer.</span>
+                <strong>Finding the subject…</strong>
+                <span>The first photo also loads the detection model (4.5 MB). Everything stays on this computer.</span>
               </div>
             )}
             {active?.status === "error" && (
@@ -602,15 +601,14 @@ function Studio({ saveFile, sampleUrl }: PopOutStudioProps) {
 
           {active?.status === "ready" && !active.assets?.subject && (
             <p className={styles.notice}>
-              No person was found in this photo. Choose <b>Restore</b> and paint over what should pop out, or try
-              &ldquo;People + objects&rdquo;.
+              No clear subject was found in this photo. Choose <b>Restore</b> and paint over what should pop out.
             </p>
           )}
           <p className={styles.hint}>
             {tool === "move"
               ? "Drag the photo to reposition it behind the frame. The frame stays fixed — it's the spot on your page."
               : tool === "erase"
-                ? "Paint over anything that shouldn't pop out (a bag strap, a car, background people)."
+                ? "Paint over anything that shouldn't pop out (a bag strap, a car, people in the background)."
                 : "Paint over anything that should pop out but was missed. The faded photo shows what you can bring back."}
           </p>
 
@@ -727,24 +725,17 @@ function Studio({ saveFile, sampleUrl }: PopOutStudioProps) {
                   </label>
                 ))}
               </div>
-              <div className={styles.fieldLabel}>Detect</div>
-              <div className={styles.segmented}>
-                <button className={active.detect === "people" ? styles.segOn : ""} onClick={() => redetect("people")}>
-                  People
-                </button>
+              <div className={styles.buttonRow}>
                 <button
-                  className={active.detect === "people-objects" ? styles.segOn : ""}
-                  onClick={() => redetect("people-objects")}
+                  className={styles.smallBtn}
+                  onClick={() => active.assets && updatePhoto(active.id, { view: autoView(slot, active.assets) })}
                 >
-                  People + objects
+                  Auto-place again
+                </button>
+                <button className={styles.smallBtn} onClick={redetect}>
+                  Redo cut-out
                 </button>
               </div>
-              <button
-                className={styles.smallBtn}
-                onClick={() => active.assets && updatePhoto(active.id, { view: autoView(slot, active.assets) })}
-              >
-                Auto-place again
-              </button>
             </div>
           )}
 
@@ -776,7 +767,7 @@ function Studio({ saveFile, sampleUrl }: PopOutStudioProps) {
             <Slider label="Room below" min={0} max={100} value={slot.marginBottom} display={`${slot.marginBottom}%`} onChange={(v) => setSlotField("marginBottom", v)} />
             <Slider label="Room at the sides" min={0} max={60} value={slot.marginSide} display={`${slot.marginSide}%`} onChange={(v) => setSlotField("marginSide", v)} />
             <p className={styles.small}>
-              Output: {geo.width} × {geo.height}px PNG. &ldquo;Room&rdquo; is how far people can step out, as a % of the
+              Output: {geo.width} × {geo.height}px PNG. &ldquo;Room&rdquo; is how far the subject can step out, as a % of the
               frame height.
             </p>
           </div>
@@ -785,7 +776,7 @@ function Studio({ saveFile, sampleUrl }: PopOutStudioProps) {
             <h3>Look</h3>
             <Slider label="White rim" min={0} max={30} value={slot.border} display={`${slot.border}px`} onChange={(v) => setSlotField("border", v)} />
             <Slider label="Frame shadow" min={0} max={100} value={slot.frameShadow} onChange={(v) => setSlotField("frameShadow", v)} />
-            <Slider label="Person shadow" min={0} max={100} value={slot.subjectShadow} onChange={(v) => setSlotField("subjectShadow", v)} />
+            <Slider label="Subject shadow" min={0} max={100} value={slot.subjectShadow} onChange={(v) => setSlotField("subjectShadow", v)} />
             <Slider label="Fade below frame" min={0} max={100} value={slot.fade} onChange={(v) => setSlotField("fade", v)} />
             <label className={styles.field}>
               <span className={styles.fieldLabel}>Background</span>
@@ -809,7 +800,7 @@ function Studio({ saveFile, sampleUrl }: PopOutStudioProps) {
             {showCode && (
               <>
                 <p className={styles.small}>
-                  The box is the designated image area; the PNG overhangs it so people can step out. Every image
+                  The box is the designated image area; the PNG overhangs it so the subject can step out. Every image
                   made with these settings fits the same box.
                 </p>
                 <pre className={styles.code}>{snippet}</pre>

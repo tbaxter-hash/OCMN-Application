@@ -122,10 +122,17 @@ export function autoView(s: SlotSettings, a: PhotoAssets): PhotoView {
   // where the subject's top and bottom should land (output px)
   const topTarget = f.y - g.mt * 0.82;
   const bottomTarget = touchesBottom ? f.y + f.h : f.y + f.h + g.mb * 0.8;
-  let scale = (bottomTarget - topTarget) / sub.h;
-  // too wide for the canvas? shrink so the arms stay on the canvas
+  const desired = (bottomTarget - topTarget) / sub.h;
+  let scale = desired;
+  // too wide for the canvas? shrink a little so arms etc. stay on the canvas; a very
+  // wide subject (a group) keeps its height so it still rises out of the top, and is
+  // trimmed at the frame's sides instead
   const maxW = g.width * 0.96;
-  if (sub.w * scale > maxW) scale = maxW / sub.w;
+  let trimSides = false;
+  if (sub.w * scale > maxW) {
+    scale = Math.max(maxW / sub.w, desired * 0.75);
+    trimSides = sub.w * scale > maxW;
+  }
   scale = Math.max(scale, cover);
 
   const cx = sub.x + sub.w / 2;
@@ -137,7 +144,12 @@ export function autoView(s: SlotSettings, a: PhotoAssets): PhotoView {
     scale,
     ox,
     oy,
-    sides: { top: true, bottom: !touchesBottom, left: !touchesLeft, right: !touchesRight },
+    sides: {
+      top: true,
+      bottom: !touchesBottom,
+      left: !touchesLeft && !trimSides,
+      right: !touchesRight && !trimSides,
+    },
   });
 }
 

@@ -535,6 +535,12 @@
   height: 16px;
 }
 
+.buttonRow {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
 .smallBtn {
   align-self: flex-start;
   font: inherit;

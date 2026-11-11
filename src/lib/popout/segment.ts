@@ -1,75 +1,46 @@
-// Finds the subject in a photo, entirely in the browser, using Google MediaPipe
-// image-segmentation models. Nothing is uploaded: the WebAssembly runtime is served
-// from this site (/mediapipe/wasm, copied from node_modules at build time) and the
-// models are fetched once from Google's public model bucket.
+// Finds the main subject of a photo — a person, a group, a pet, a product, a piece of
+// furniture — entirely in the browser. Nothing is uploaded: U²-Net-p runs on
+// TensorFlow.js (see ./u2net.ts) and its weights are served from this site
+// (public/popout/). The model's coarse 320×320 answer is then snapped to the photo's
+// real edges with a guided filter.
 
-import type { ImageSegmenter } from "@mediapipe/tasks-vision";
+import { loadU2Net, type U2Net } from "./u2net";
 
-let wasmPath = "/mediapipe/wasm";
-let modelLoader: ((modelUrl: string) => Promise<Uint8Array>) | null = null;
-const MODEL_BASE = "https://storage.googleapis.com/mediapipe-models/image_segmenter";
-const PEOPLE_MODEL = `${MODEL_BASE}/selfie_multiclass_256x256/float32/latest/selfie_multiclass_256x256.tflite`;
-const OBJECTS_MODEL = `${MODEL_BASE}/deeplab_v3/float32/latest/deeplab_v3.tflite`;
-
-export type DetectMode = "people" | "people-objects";
+let graphUrl = "/popout/u2netp.json";
+let weightsUrl = "/popout/u2netp.bin";
 
 /**
- * Overrides where the runtime and models come from (e.g. when the studio is hosted
- * somewhere that can't reach this site's /mediapipe folder or Google's bucket).
- * Call before the first photo is processed.
+ * Overrides where the model files come from (e.g. when the studio is hosted outside
+ * this app). Call before the first photo is processed.
  */
-export function configureSegmenter(opts: {
-  wasmPath?: string;
-  loadModel?: (modelUrl: string) => Promise<Uint8Array>;
-}) {
-  if (opts.wasmPath) wasmPath = opts.wasmPath;
-  if (opts.loadModel) modelLoader = opts.loadModel;
+export function configureSegmenter(opts: { graphUrl?: string; weightsUrl?: string }) {
+  if (opts.graphUrl) graphUrl = opts.graphUrl;
+  if (opts.weightsUrl) weightsUrl = opts.weightsUrl;
+  model = null;
 }
 
-const cache = new Map<string, Promise<ImageSegmenter>>();
+let model: Promise<U2Net> | null = null;
 
-async function getSegmenter(modelUrl: string): Promise<ImageSegmenter> {
-  let p = cache.get(modelUrl);
-  if (!p) {
-    p = (async () => {
-      const { FilesetResolver, ImageSegmenter } = await import("@mediapipe/tasks-vision");
-      const fileset = await FilesetResolver.forVisionTasks(wasmPath);
-      const modelBuffer = modelLoader ? await modelLoader(modelUrl) : null;
-      const make = (delegate: "GPU" | "CPU") =>
-        ImageSegmenter.createFromOptions(fileset, {
-          baseOptions: modelBuffer
-            ? { modelAssetBuffer: modelBuffer, delegate }
-            : { modelAssetPath: modelUrl, delegate },
-          runningMode: "IMAGE",
-          outputConfidenceMasks: true,
-          outputCategoryMask: false,
-        });
-      try {
-        return await make("GPU");
-      } catch {
-        return await make("CPU");
-      }
-    })();
-    p.catch(() => cache.delete(modelUrl));
-    cache.set(modelUrl, p);
+function getModel(): Promise<U2Net> {
+  if (!model) {
+    model = loadU2Net(graphUrl, weightsUrl);
+    model.catch(() => (model = null));
   }
-  return p;
+  return model;
 }
 
-/** Foreground probability (0..1) per pixel at the source's size: 1 − background. */
-async function foreground(modelUrl: string, source: HTMLCanvasElement): Promise<Float32Array> {
-  const seg = await getSegmenter(modelUrl);
-  const result = seg.segment(source);
-  try {
-    const bg = result.confidenceMasks?.[0];
-    if (!bg) throw new Error("The model returned no mask.");
-    const raw = bg.getAsFloat32Array();
-    const fg = new Float32Array(raw.length);
-    for (let i = 0; i < raw.length; i++) fg[i] = 1 - raw[i];
-    return resample(fg, bg.width, bg.height, source.width, source.height);
-  } finally {
-    result.close();
-  }
+/** Subject probability (0..1) per pixel at the source's size. */
+async function foreground(source: HTMLCanvasElement): Promise<Float32Array> {
+  const net = await getModel();
+  const S = net.size;
+  const small = document.createElement("canvas");
+  small.width = S;
+  small.height = S;
+  const ctx = small.getContext("2d", { willReadFrequently: true })!;
+  ctx.imageSmoothingQuality = "high";
+  ctx.drawImage(source, 0, 0, S, S);
+  const prob = await net.predict(ctx.getImageData(0, 0, S, S).data);
+  return resample(prob, S, S, source.width, source.height);
 }
 
 function resample(src: Float32Array, sw: number, sh: number, dw: number, dh: number): Float32Array {
@@ -149,14 +120,10 @@ function guidedFilter(guide: Float32Array, p: Float32Array, w: number, h: number
  * Returns a canvas the size of `source` whose alpha channel is the subject mask
  * (white where the subject is, transparent elsewhere).
  */
-export async function segmentSubject(source: HTMLCanvasElement, mode: DetectMode): Promise<HTMLCanvasElement> {
+export async function segmentSubject(source: HTMLCanvasElement): Promise<HTMLCanvasElement> {
   const w = source.width;
   const h = source.height;
-  let fg = await foreground(PEOPLE_MODEL, source);
-  if (mode === "people-objects") {
-    const obj = await foreground(OBJECTS_MODEL, source);
-    for (let i = 0; i < fg.length; i++) fg[i] = Math.max(fg[i], obj[i]);
-  }
+  let fg = await foreground(source);
 
   const ctx = source.getContext("2d", { willReadFrequently: true })!;
   const px = ctx.getImageData(0, 0, w, h).data;
