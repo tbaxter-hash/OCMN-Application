@@ -2,7 +2,7 @@
 // which department sold it, where (Ohio rates differ by county), and whether
 // the price already had tax in it.
 
-export const SALES_TAX_STORAGE_KEY = "ocmn-sales-tax-v1";
+export const SALES_TAX_STORAGE_KEY = "omn-sales-tax-v1";
 
 export interface Department {
   id: string;
@@ -62,7 +62,7 @@ export const EXEMPT_REASONS = [
 
 // Starting list only. The team renames, adds, or removes these in the app.
 export const DEFAULT_DEPARTMENTS: Department[] = [
-  { id: "ocmn", name: "Church Multiplication (OCMN)" },
+  { id: "multiplication", name: "Church Multiplication" },
   { id: "youth", name: "Youth Ministries" },
   { id: "kids", name: "Children’s Ministries" },
   { id: "women", name: "Women’s Ministries" },

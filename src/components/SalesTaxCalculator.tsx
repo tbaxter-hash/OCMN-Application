@@ -1,7 +1,5 @@
 "use client";
 
-import Image from "next/image";
-import Link from "next/link";
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import {
   EXEMPT_REASONS,
@@ -30,7 +28,6 @@ import {
   type SalesTaxState,
 } from "@/lib/salesTax";
 import { buildSalesTaxCsv, buildSalesTaxWorkbook, mergeSalesTaxWorkbook } from "@/lib/salesTaxWorkbook";
-import Sparkle from "./Sparkle";
 import styles from "./SalesTaxCalculator.module.css";
 
 const FILTER_KEY = `${SALES_TAX_STORAGE_KEY}-filter`;
@@ -232,13 +229,15 @@ function Calculator() {
   return (
     <div className={styles.page}>
       <header className={styles.topBar}>
-        <Link href="/" className={styles.brand}>
-          <Image src="/assets/emblem-black-900.png" alt="" width={40} height={40} className={styles.emblem} />
+        <div className={styles.brand}>
+          <span className={styles.brandMark} aria-hidden="true">
+            OMN
+          </span>
           <span className={styles.brandText}>
             Ohio Ministry Network
             <span>Sales Tax Calculator</span>
           </span>
-        </Link>
+        </div>
         <div className={styles.actions}>
           <button type="button" className={styles.ghostBtn} onClick={reset}>
             Clear sales
@@ -296,12 +295,11 @@ function Calculator() {
         <main className={styles.main}>
           <section className={styles.hero}>
             <span className={styles.pill}>
-              Sales <span className="ocmn-accent">Tax</span>
-              <Sparkle className={styles.sparkle} />
+              Sales tax
             </span>
             <h1 className={styles.h1}>
               <span>Every sale counted.</span>
-              <span className="ocmn-accent">Every cent reported.</span>
+              <span className={styles.h1Sub}>Every cent reported.</span>
             </h1>
             <p className={styles.intro}>
               Log what each department sells — books, merchandise, event tables — and the tax is
@@ -725,7 +723,7 @@ function SectionHead({
     <div className={styles.sectionHead}>
       <span className={styles.stepPill}>{eyebrow}</span>
       <h2 className={styles.h2}>
-        {title} {accent ? <span className="ocmn-accent">{accent}</span> : null}
+        {title} {accent}
       </h2>
       <p className={styles.sectionIntro}>{children}</p>
     </div>

@@ -1,5 +1,24 @@
+/* OMN brand tokens. Swap these for the official Ohio Ministry Network
+   colors and font; everything on the page reads from them. */
 .page {
+  --brand: #1f3a68;
+  --brand-dark: #142847;
+  --brand-mid: #3a5a94;
+  --brand-soft: #d6dff0;
+  --brand-tint: #eef2f9;
+  --accent: #b5651d;
+  --accent-soft: #f6e6d4;
+  --accent-line: #e8c7a2;
+  --brand-font: system-ui, -apple-system, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+
   min-height: 100vh;
+  font-family: var(--brand-font);
+}
+
+.page button,
+.page input,
+.page select {
+  font-family: inherit;
 }
 
 .topBar {
@@ -24,9 +43,18 @@
   text-decoration: none;
 }
 
-.emblem {
-  width: 40px;
-  height: 40px;
+.brandMark {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 10px;
+  background: var(--brand);
+  color: #fff;
+  font-size: 13px;
+  font-weight: 900;
+  letter-spacing: 0.04em;
 }
 
 .brandText {
@@ -74,7 +102,7 @@
 }
 
 .primaryBtn {
-  background: var(--blue-600);
+  background: var(--brand);
   color: #fff;
   border: none;
   border-radius: var(--radius-pill);
@@ -85,7 +113,7 @@
 }
 
 .primaryBtn:hover {
-  background: var(--blue-700);
+  background: var(--brand-dark);
 }
 
 .note {
@@ -180,12 +208,6 @@
   font-weight: 800;
 }
 
-.sparkle {
-  position: absolute;
-  top: 0;
-  right: 0;
-  margin: -7px -7px 0 0;
-}
 
 .h1 {
   font-size: clamp(34px, 5vw, 56px);
@@ -198,9 +220,11 @@
   display: block;
 }
 
-.h1 :global(.ocmn-accent) {
-  font-weight: 400;
+.h1 .h1Sub {
+  font-weight: 500;
+  color: var(--brand);
 }
+
 
 .intro {
   font-size: 17px;
@@ -242,9 +266,6 @@
   line-height: 1.1;
 }
 
-.h2 :global(.ocmn-accent) {
-  font-weight: 400;
-}
 
 .sectionIntro {
   font-size: 15px;
@@ -259,7 +280,6 @@
   border-radius: var(--radius-lg);
   box-shadow: var(--shadow-sm);
   padding: 20px 22px;
-  animation: ocmnFadeUp 260ms ease-out;
 }
 
 @media (max-width: 600px) {
@@ -297,8 +317,8 @@
 
 .input:focus {
   outline: none;
-  border-color: var(--blue-500);
-  box-shadow: var(--shadow-focus);
+  border-color: var(--brand-mid);
+  box-shadow: 0 0 0 3px var(--brand-soft);
 }
 
 
@@ -338,7 +358,7 @@ select.input {
   display: flex;
   flex-direction: column;
   gap: 18px;
-  border-left: 4px solid var(--blue-600);
+  border-left: 4px solid var(--brand);
 }
 
 .formGrid {
@@ -432,8 +452,8 @@ select.input {
 }
 
 .optionSelected {
-  background: var(--blue-50);
-  border-color: var(--blue-600);
+  background: var(--brand-tint);
+  border-color: var(--brand);
 }
 
 .mark {
@@ -452,8 +472,8 @@ select.input {
 }
 
 .optionSelected .mark {
-  background: var(--blue-600);
-  border-color: var(--blue-600);
+  background: var(--brand);
+  border-color: var(--brand);
 }
 
 .optionLabel {
@@ -509,7 +529,7 @@ select.input {
 }
 
 .figureAccent .figureValue {
-  color: var(--ember-700);
+  color: var(--accent);
 }
 
 .figureStrong .figureValue {
@@ -562,9 +582,9 @@ select.input {
 }
 
 .chipOn {
-  border-color: var(--blue-600);
-  background: var(--blue-50);
-  color: var(--blue-700);
+  border-color: var(--brand);
+  background: var(--brand-tint);
+  color: var(--brand-dark);
 }
 
 /* ── Sales table ────────────────────────────────── */
@@ -645,8 +665,8 @@ select.input {
   font-weight: 700;
   padding: 2px 9px;
   border-radius: var(--radius-pill);
-  background: var(--blue-50);
-  color: var(--blue-700);
+  background: var(--brand-tint);
+  color: var(--brand-dark);
 }
 
 .tagExempt {
@@ -684,7 +704,7 @@ select.input {
   padding: 2px 0;
   font-size: 13px;
   font-weight: 700;
-  color: var(--blue-600);
+  color: var(--brand);
 }
 
 .linkBtn:disabled {
@@ -883,7 +903,7 @@ select.input {
 .summaryNet {
   font-size: 16px;
   font-weight: 900;
-  color: var(--ember-700);
+  color: var(--accent);
   padding: 4px 0;
 }
 
@@ -916,7 +936,7 @@ select.input {
 }
 
 .help a {
-  color: var(--blue-600);
+  color: var(--brand);
   font-weight: 700;
   text-decoration: none;
 }

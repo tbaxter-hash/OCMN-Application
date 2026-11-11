@@ -81,7 +81,10 @@ then hand a report to the bookkeeper.
   them. Edits made in Excel aren't read back; the hidden `SalesTaxData` tab is used.
 - A **quick calculator** in the sidebar works out tax on an amount without saving.
 - Math lives in `src/lib/salesTax.ts`; saved in `localStorage` under
-  `ocmn-sales-tax-v1`. Nothing is sent anywhere.
+  `omn-sales-tax-v1`. Nothing is sent anywhere.
+- Branded **OMN** (Ohio Ministry Network), not OCMN: no OCMN logo or fonts. Brand
+  colors and font are tokens at the top of `SalesTaxCalculator.module.css` (and `C` in
+  the workbook). Handoff spec for rebuilding it elsewhere: `docs/omn-sales-tax-handoff.md`.
 
 ## Explainer videos
 

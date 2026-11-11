@@ -25,15 +25,16 @@ const MONEY = '"$"#,##0.00;[Red]-"$"#,##0.00;"–"';
 const RATE = "0.000%";
 const FONT = "Calibri";
 
+// Same values as the brand tokens at the top of SalesTaxCalculator.module.css, as ARGB.
 const C = {
   ink: "FF111110",
   ink500: "FF726E63",
   ink200: "FFDED8C9",
-  blue: "FF2049B4",
-  blue50: "FFEEF3FE",
-  ember: "FFEA8A3C",
-  ember100: "FFFAE7D2",
-  ember700: "FFB85A1D",
+  blue: "FF1F3A68",
+  blue50: "FFEEF2F9",
+  ember: "FFB5651D",
+  ember100: "FFF6E6D4",
+  ember700: "FFB5651D",
 };
 
 const fill = (argb: string): Fill => ({ type: "pattern", pattern: "solid", fgColor: { argb } });
@@ -169,7 +170,7 @@ function buildSummary(ws: Worksheet, state: SalesTaxState, report: Report, filte
   ws.getCell("A2").font = font({ bold: true, size: 12, color: { argb: C.blue } });
   const dept = filter.departmentId ? departmentName(state, filter.departmentId) : "All departments";
   ws.getCell("A3").value = `Period: ${periodLabel(filter)}  ·  ${dept}`;
-  ws.getCell("A4").value = `Prepared ${new Date().toLocaleDateString("en-US")} with the OCMN Sales Tax Calculator · ${report.entries.length} sale${report.entries.length === 1 ? "" : "s"}`;
+  ws.getCell("A4").value = `Prepared ${new Date().toLocaleDateString("en-US")} with the OMN Sales Tax Calculator · ${report.entries.length} sale${report.entries.length === 1 ? "" : "s"}`;
   ws.getCell("A3").font = font();
   ws.getCell("A4").font = font({ color: { argb: C.ink500 }, italic: true });
 
@@ -301,7 +302,7 @@ const CHUNK = 30000; // Excel cells hold at most 32,767 characters.
 export async function buildSalesTaxWorkbook(state: SalesTaxState, report: Report, filter: Filter): Promise<Blob> {
   const ExcelJS = (await import("exceljs")).default;
   const wb = new ExcelJS.Workbook();
-  wb.creator = "OCMN Sales Tax Calculator";
+  wb.creator = "OMN Sales Tax Calculator";
   wb.created = new Date();
   wb.calcProperties.fullCalcOnLoad = true;
 
@@ -353,7 +354,7 @@ export async function mergeSalesTaxWorkbook(file: File, current: SalesTaxState):
     saved = JSON.parse(json);
     if (!saved || saved.version !== 1 || !Array.isArray(saved.entries)) throw new Error();
   } catch {
-    throw new Error("This spreadsheet wasn’t made by the OCMN Sales Tax Calculator, so it can’t be opened here.");
+    throw new Error("This spreadsheet wasn’t made by the OMN Sales Tax Calculator, so it can’t be opened here.");
   }
 
   const base = current;
